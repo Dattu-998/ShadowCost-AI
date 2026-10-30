@@ -1,0 +1,1 @@
+invoice_id,customer,customer_email,issue_date,due_date,amount,status,paid_date,reminders_sent,last_reminder_date,notes

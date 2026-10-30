@@ -36,6 +36,29 @@ Early development. Done so far:
 - `shadowcost.shadow`: field-by-field comparison of agent output against the human's.
 - `shadowcost.autonomy`: the autonomy ladder (shadow → draft → approval →
   autonomous) and the promotion and demotion policy.
+- `shadowcost.synth`: a synthetic small company with known ground truth (see below).
+
+## Synthetic data
+
+Real small-company data with labels for "this was repetitive work, and it took
+this long" doesn't exist, so ShadowCost ships with a simulator. It models
+Fernhill Supplies, a fictional wholesaler whose office manager sends invoices,
+records payments and chases late payers. Over four months, it produces:
+
+- what ShadowCost gets to see: daily snapshots of the invoice spreadsheet, a
+  bank export and the accounts mailbox;
+- what it never sees: a ground-truth log of every action the office manager
+  took, its workflow and the minutes it took.
+
+The ground truth lets discovery be scored with precision and recall, and lets
+savings estimates be checked against the real minutes. The office manager is
+deliberately imperfect: payments are recorded late, reminders get forgotten and
+emails are phrased differently each time. See
+[data/sample/README.md](data/sample/README.md) for the data card.
+
+```bash
+shadowcost-synth --out data/my-run --seed 42 --days 180
+```
 
 ## Quickstart
 

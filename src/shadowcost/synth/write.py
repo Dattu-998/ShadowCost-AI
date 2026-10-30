@@ -1,0 +1,185 @@
+"""Write a simulated company to disk as a dataset ShadowCost can ingest."""
+
+from __future__ import annotations
+
+import json
+from collections import Counter, defaultdict
+from dataclasses import asdict, fields
+from datetime import timedelta
+from pathlib import Path
+
+import pandas as pd
+
+from shadowcost import __version__
+from shadowcost.synth.emails import COMPANY
+from shadowcost.synth.simulate import (
+    LEDGER_COLUMNS,
+    WORKFLOWS,
+    Action,
+    Payment,
+    SimulationResult,
+)
+
+# Everything write_dataset creates. Only these are removed when overwriting.
+GENERATED = [
+    "README.md",
+    "manifest.json",
+    "customers.xlsx",
+    "ledger",
+    "bank",
+    "email",
+    "ground_truth",
+]
+
+
+def write_dataset(result: SimulationResult, out_dir: str | Path, overwrite: bool = False) -> dict:
+    """Write the dataset to ``out_dir`` and return its manifest."""
+    out = Path(out_dir)
+    existing = [name for name in GENERATED if (out / name).exists()]
+    if existing and not overwrite:
+        raise FileExistsError(
+            f"{out} already contains a dataset ({', '.join(existing)}); "
+            "pass overwrite=True to replace it"
+        )
+    for name in existing:
+        path = out / name
+        # Empty generated folders rather than deleting them: sync clients such as
+        # OneDrive hold locks on folders and make deleting them fail on Windows.
+        files = [p for p in path.rglob("*") if p.is_file()] if path.is_dir() else [path]
+        for file in files:
+            file.unlink()
+    for sub in ("ledger", "bank", "email", "ground_truth"):
+        (out / sub).mkdir(parents=True, exist_ok=True)
+
+    # Observable data.
+    for day, rows in result.snapshots.items():
+        _csv(pd.DataFrame(rows, columns=LEDGER_COLUMNS), out / "ledger" / f"invoices_{day}.csv")
+
+    customers = pd.DataFrame(
+        [
+            {
+                "customer_id": c.customer_id,
+                "name": c.name,
+                "email": c.email,
+                "payment_terms_days": c.terms_days,
+            }
+            for c in result.customers
+        ]
+    )
+    customers.to_excel(out / "customers.xlsx", index=False)
+
+    payment_columns = [f.name for f in fields(Payment)]
+    payments = pd.DataFrame([asdict(p) for p in result.payments], columns=payment_columns)
+    _csv(payments, out / "bank" / "payments.csv")
+
+    with open(out / "email" / "messages.jsonl", "w", encoding="utf-8", newline="\n") as fh:
+        for msg in result.emails:
+            record = asdict(msg) | {"timestamp": msg.timestamp.isoformat()}
+            fh.write(json.dumps(record) + "\n")
+
+    # Ground truth.
+    action_columns = [f.name for f in fields(Action)]
+    actions = pd.DataFrame(
+        [asdict(a) | {"timestamp": a.timestamp.isoformat()} for a in result.actions],
+        columns=action_columns,
+    )
+    _csv(actions, out / "ground_truth" / "actions.csv")
+    profiles = pd.DataFrame(
+        [{"customer_id": c.customer_id, "payer_type": c.payer_type} for c in result.customers]
+    )
+    _csv(profiles, out / "ground_truth" / "customer_profiles.csv")
+    _json(WORKFLOWS, out / "ground_truth" / "workflows.json")
+
+    manifest = _manifest(result)
+    _json(manifest, out / "manifest.json")
+    (out / "README.md").write_text(_data_card(manifest), encoding="utf-8", newline="\n")
+    return manifest
+
+
+def _manifest(result: SimulationResult) -> dict:
+    cfg = result.config
+    actions_by_workflow = Counter(a.workflow for a in result.actions)
+    minutes_by_workflow: dict[str, float] = defaultdict(float)
+    for a in result.actions:
+        minutes_by_workflow[a.workflow] += a.minutes
+    return {
+        "generator": "shadowcost.synth",
+        "version": __version__,
+        "config": asdict(cfg) | {"start": cfg.start.isoformat()},
+        "period": {
+            "start": cfg.start.isoformat(),
+            "end": (cfg.start + timedelta(days=cfg.days - 1)).isoformat(),
+        },
+        "counts": {
+            "customers": len(result.customers),
+            "invoices": len(result.snapshots[max(result.snapshots)]) if result.snapshots else 0,
+            "snapshots": len(result.snapshots),
+            "payments": len(result.payments),
+            "emails": len(result.emails),
+            "actions": len(result.actions),
+        },
+        "ground_truth": {
+            wf["name"]: {
+                "actions": actions_by_workflow[wf["name"]],
+                "minutes": round(minutes_by_workflow[wf["name"]], 1),
+            }
+            for wf in WORKFLOWS
+        },
+    }
+
+
+def _data_card(manifest: dict) -> str:
+    counts = manifest["counts"]
+    period = manifest["period"]
+    truth_rows = "\n".join(
+        f"| `{name}` | {stats['actions']} | {stats['minutes'] / 60:.1f} |"
+        for name, stats in manifest["ground_truth"].items()
+    )
+    return f"""# Synthetic dataset: {COMPANY}
+
+Generated by `python -m shadowcost.synth` (seed {manifest["config"]["seed"]}), covering
+{period["start"]} to {period["end"]}. Regenerating with the same seed and settings
+produces the same data.
+
+{COMPANY} is a fictional wholesale supplier with {counts["customers"]} customers.
+One office manager sends invoices, records incoming payments and chases late payers.
+All names, addresses and amounts are made up; every domain is under `.example`.
+
+## What ShadowCost sees
+
+| Path | Contents |
+|---|---|
+| `ledger/invoices_YYYY-MM-DD.csv` | The invoice spreadsheet as it was at the end of each business day ({counts["snapshots"]} snapshots, {counts["invoices"]} invoices by the end). |
+| `customers.xlsx` | The customer contact list. |
+| `bank/payments.csv` | The bank's export of incoming payments ({counts["payments"]}). References are often missing or mistyped. |
+| `email/messages.jsonl` | The accounts mailbox, one JSON record per email ({counts["emails"]}). |
+
+## Ground truth (never shown to ShadowCost)
+
+| Path | Contents |
+|---|---|
+| `ground_truth/actions.csv` | Every action the office manager took: when, which workflow and step, which invoice, minutes spent, and the email, payment or ledger edit it produced. |
+| `ground_truth/workflows.json` | The workflow definitions, including which are repetitive. |
+| `ground_truth/customer_profiles.csv` | Each customer's hidden payment behaviour. |
+
+| Workflow | Actions | Hours |
+|---|---|---|
+{truth_rows}
+
+## Deliberate imperfections
+
+- Payments are recorded 0-2 business days after they reach the bank.
+- About 5% of paid invoices use the recording date as `paid_date` instead of the bank date.
+- About 8% of due reminders are forgotten, and reminders are sometimes sent for
+  invoices that have been paid but not yet recorded.
+- Customers sometimes promise to pay and don't.
+- Each kind of email is phrased a few different ways.
+"""
+
+
+def _csv(df: pd.DataFrame, path: Path) -> None:
+    df.to_csv(path, index=False, lineterminator="\n")
+
+
+def _json(data: object, path: Path) -> None:
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")

@@ -1,0 +1,57 @@
+[
+  {
+    "name": "send_invoice",
+    "repetitive": true,
+    "trigger": "Work is delivered to a customer.",
+    "steps": [
+      "add_ledger_row",
+      "send_invoice_email"
+    ],
+    "observable_in": [
+      "ledger",
+      "email"
+    ]
+  },
+  {
+    "name": "record_payment",
+    "repetitive": true,
+    "trigger": "A payment reaches the bank; it is recorded 0-2 business days later.",
+    "steps": [
+      "match_payment",
+      "update_ledger"
+    ],
+    "observable_in": [
+      "bank",
+      "ledger"
+    ]
+  },
+  {
+    "name": "chase_overdue",
+    "repetitive": true,
+    "trigger": "On Mondays and Thursdays, invoices 7, 14 and 30+ days overdue get a first reminder, a second reminder and a final notice.",
+    "steps": [
+      "send_reminder",
+      "update_ledger"
+    ],
+    "observable_in": [
+      "email",
+      "ledger"
+    ]
+  },
+  {
+    "name": "ad_hoc",
+    "repetitive": false,
+    "trigger": "Judgment calls and one-off requests.",
+    "steps": [
+      "misc_email",
+      "edit_ledger",
+      "note_promise",
+      "resend_invoice",
+      "answer_query"
+    ],
+    "observable_in": [
+      "email",
+      "ledger"
+    ]
+  }
+]

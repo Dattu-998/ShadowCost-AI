@@ -13,6 +13,9 @@ dependencies = [
     "openpyxl>=3.1",
 ]
 
+[project.scripts]
+shadowcost-synth = "shadowcost.synth.__main__:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8",
@@ -32,3 +35,7 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# The data-card template contains Markdown table rows that can't be wrapped.
+"src/shadowcost/synth/write.py" = ["E501"]

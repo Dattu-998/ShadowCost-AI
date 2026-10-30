@@ -37,6 +37,7 @@ exist today are marked ✅.
 
 | Stage | Module | Responsibility |
 |---|---|---|
+| (Test data) | `synth` ✅ | Simulates a small company's invoicing work and writes the files ShadowCost would receive, plus a hidden ground-truth log of every action, its workflow and the minutes it took. |
 | Upload | `ingest` | Load CSV/Excel, file snapshots and email records into one event table: `case_id, actor, action, timestamp, payload`. |
 | Discover | `discover` | Infer repeated workflows from the event table: recurring action sequences, column-level edit patterns between snapshots, templated emails. |
 | Recommend | `recommend` | Rank candidate workflows by frequency × time per case. Every estimate lists its assumptions. |

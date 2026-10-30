@@ -1,0 +1,46 @@
+{
+  "generator": "shadowcost.synth",
+  "version": "0.1.0",
+  "config": {
+    "seed": 7,
+    "start": "2026-01-05",
+    "days": 120,
+    "n_customers": 25,
+    "invoices_per_day": 1.5,
+    "forget_reminder_prob": 0.08,
+    "reply_prob": 0.35,
+    "misc_email_prob": 0.35,
+    "ledger_edit_prob": 0.06,
+    "inbound_noise_prob": 0.5
+  },
+  "period": {
+    "start": "2026-01-05",
+    "end": "2026-05-04"
+  },
+  "counts": {
+    "customers": 25,
+    "invoices": 109,
+    "snapshots": 86,
+    "payments": 84,
+    "emails": 235,
+    "actions": 500
+  },
+  "ground_truth": {
+    "send_invoice": {
+      "actions": 218,
+      "minutes": 818.3
+    },
+    "record_payment": {
+      "actions": 160,
+      "minutes": 416.1
+    },
+    "chase_overdue": {
+      "actions": 92,
+      "minutes": 300.2
+    },
+    "ad_hoc": {
+      "actions": 30,
+      "minutes": 295.0
+    }
+  }
+}

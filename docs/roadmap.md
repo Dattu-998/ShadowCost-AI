@@ -7,10 +7,10 @@ public repo, README, architecture diagram, demo video and a live deployment.
 ## Milestones
 
 - [x] **0. Foundation.** Repo, packaging, tests, shadow comparison, autonomy ladder.
-- [ ] **1. Synthetic company.** A data generator for a small company's invoice
+- [x] **1. Synthetic company.** A data generator for a small company's invoice
       and payment-chasing work: an invoices spreadsheet over time, payment
       records and reminder emails, with a known ground truth for which work is
-      repetitive.
+      repetitive. (`shadowcost.synth`; sample in `data/sample/`.)
 - [ ] **2. Ingest.** Normalize CSV/Excel, snapshots and email records into one
       event table.
 - [ ] **3. Discover + recommend.** Find repeated workflows and rank them by
