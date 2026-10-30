@@ -15,6 +15,7 @@ dependencies = [
 
 [project.scripts]
 shadowcost-synth = "shadowcost.synth.__main__:main"
+shadowcost-ingest = "shadowcost.ingest.__main__:main"
 
 [project.optional-dependencies]
 dev = [

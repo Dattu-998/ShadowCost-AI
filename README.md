@@ -37,6 +37,13 @@ Early development. Done so far:
 - `shadowcost.autonomy`: the autonomy ladder (shadow → draft → approval →
   autonomous) and the promotion and demotion policy.
 - `shadowcost.synth`: a synthetic small company with known ground truth (see below).
+- `shadowcost.ingest`: turns a folder of spreadsheet snapshots, bank exports and
+  email logs into one event table, with each event linked to the case (e.g. the
+  invoice) it's about.
+
+```bash
+shadowcost-ingest data/sample --out events.csv
+```
 
 ## Synthetic data
 

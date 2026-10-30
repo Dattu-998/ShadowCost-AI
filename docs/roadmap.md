@@ -11,8 +11,11 @@ public repo, README, architecture diagram, demo video and a live deployment.
       and payment-chasing work: an invoices spreadsheet over time, payment
       records and reminder emails, with a known ground truth for which work is
       repetitive. (`shadowcost.synth`; sample in `data/sample/`.)
-- [ ] **2. Ingest.** Normalize CSV/Excel, snapshots and email records into one
-      event table.
+- [x] **2. Ingest.** Normalize CSV/Excel, snapshots and email records into one
+      event table. (`shadowcost.ingest`. On the sample: spreadsheet edits
+      recovered with precision and recall 1.0, 80/80 recorded payments and
+      180/180 emails linked to the right invoice. The synthetic data is cleaner
+      than real exports, so a messier generator mode is a known follow-up.)
 - [ ] **3. Discover + recommend.** Find repeated workflows and rank them by
       cost. Evaluate discovery against the generator's ground truth
       (precision/recall).

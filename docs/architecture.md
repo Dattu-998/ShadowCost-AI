@@ -38,7 +38,7 @@ exist today are marked ✅.
 | Stage | Module | Responsibility |
 |---|---|---|
 | (Test data) | `synth` ✅ | Simulates a small company's invoicing work and writes the files ShadowCost would receive, plus a hidden ground-truth log of every action, its workflow and the minutes it took. |
-| Upload | `ingest` | Load CSV/Excel, file snapshots and email records into one event table: `case_id, actor, action, timestamp, payload`. |
+| Upload | `ingest` ✅ | Classify uploaded files from names and headers, diff spreadsheet snapshots row by row, and link bank payments and emails to the spreadsheet row (case) they're about. Output: one event table (schema in `ingest/events.py`). |
 | Discover | `discover` | Infer repeated workflows from the event table: recurring action sequences, column-level edit patterns between snapshots, templated emails. |
 | Recommend | `recommend` | Rank candidate workflows by frequency × time per case. Every estimate lists its assumptions. |
 | Generate spec | `spec` | Turn a workflow into an agent spec: inputs, steps, outputs and the fields to compare in shadow mode. |
@@ -56,5 +56,13 @@ exist today are marked ✅.
 - **Lower bound, not point estimate.** 10/10 agreement gives a Wilson lower
   bound of about 0.72, which is not enough to promote. With the default bar of
   0.85, a perfect record needs about 30 cases.
+- **Ingest infers, it never assumes a layout.** Snapshot series are found by
+  dated file names, the row key by uniqueness across every snapshot (preferring
+  id-like column names), and bank and email fields by header keywords. Values
+  are compared as saved text, so a diff never comes from float or date parsing.
+- **Linking prefers no answer over a wrong answer.** A payment reference must
+  resolve to exactly one case. Without one, a payment is matched on exact amount
+  only if the payer name also resembles the customer, and same-amount ties need
+  a clear winner. Emails link by an unambiguous id mention, then by thread.
 - **Agreement is all-or-nothing per case.** A case counts as agreement only if
   every compared field matched. A per-field score is kept for diagnostics.
