@@ -45,6 +45,18 @@ Early development. Done so far:
 shadowcost-ingest data/sample --out events.csv
 ```
 
+- `shadowcost.discover` and `shadowcost.recommend`: find repeated workflows, work
+  out what triggers them, and rank them by the time they cost. On the held-out
+  sample, discovery finds exactly the three repetitive workflows (precision and
+  recall 1.00) and recovers the chasing rule "Mondays and Thursdays, due date at
+  least 7 days ago, unpaid" from the data alone. See
+  [docs/discovery.md](docs/discovery.md) for the method and results, including
+  where it falls short.
+
+```bash
+shadowcost-discover data/sample --evaluate
+```
+
 ## Synthetic data
 
 Real small-company data with labels for "this was repetitive work, and it took

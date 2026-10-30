@@ -16,9 +16,10 @@ public repo, README, architecture diagram, demo video and a live deployment.
       recovered with precision and recall 1.0, 80/80 recorded payments and
       180/180 emails linked to the right invoice. The synthetic data is cleaner
       than real exports, so a messier generator mode is a known follow-up.)
-- [ ] **3. Discover + recommend.** Find repeated workflows and rank them by
+- [x] **3. Discover + recommend.** Find repeated workflows and rank them by
       cost. Evaluate discovery against the generator's ground truth
-      (precision/recall).
+      (precision/recall). (`shadowcost.discover`, `shadowcost.recommend`;
+      method and results in [discovery.md](discovery.md).)
 - [ ] **4. Spec + test.** Generate an agent spec with an LLM and replay it on
       historical cases.
 - [ ] **5. Shadow loop.** Persist cases, run the agent alongside new cases,

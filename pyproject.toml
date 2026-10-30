@@ -11,11 +11,14 @@ requires-python = ">=3.11"
 dependencies = [
     "pandas>=2.2",
     "openpyxl>=3.1",
+    "scikit-learn>=1.5",
+    "scipy>=1.11",
 ]
 
 [project.scripts]
 shadowcost-synth = "shadowcost.synth.__main__:main"
 shadowcost-ingest = "shadowcost.ingest.__main__:main"
+shadowcost-discover = "shadowcost.discover.__main__:main"
 
 [project.optional-dependencies]
 dev = [

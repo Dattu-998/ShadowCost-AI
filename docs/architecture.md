@@ -39,8 +39,9 @@ exist today are marked ✅.
 |---|---|---|
 | (Test data) | `synth` ✅ | Simulates a small company's invoicing work and writes the files ShadowCost would receive, plus a hidden ground-truth log of every action, its workflow and the minutes it took. |
 | Upload | `ingest` ✅ | Classify uploaded files from names and headers, diff spreadsheet snapshots row by row, and link bank payments and emails to the spreadsheet row (case) they're about. Output: one event table (schema in `ingest/events.py`). |
-| Discover | `discover` | Infer repeated workflows from the event table: recurring action sequences, column-level edit patterns between snapshots, templated emails. |
-| Recommend | `recommend` | Rank candidate workflows by frequency × time per case. Every estimate lists its assumptions. |
+| Discover | `discover` ✅ | Cluster sent emails into templates, group work into per-case daily episodes, merge similar episode signatures into workflows, and infer each one's trigger (outside event, new row or weekly schedule) and date condition. See [discovery.md](discovery.md). |
+| Recommend | `recommend` ✅ | Rank workflows by addressable hours: estimated time cost × regularity × consistency. Every estimate lists its assumptions, with an upper bound observed from email gaps. |
+| (Grading) | `evaluation` ✅ | Scores discovery against a synthetic dataset's ground truth; the only code that reads `ground_truth/`. |
 | Generate spec | `spec` | Turn a workflow into an agent spec: inputs, steps, outputs and the fields to compare in shadow mode. |
 | Test | `spec` | Replay the spec against historical cases before anyone approves it. |
 | Shadow | `shadow` ✅ | Compare the agent's output with the human's, field by field, with tolerance for numbers, case and whitespace. |
