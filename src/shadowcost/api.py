@@ -443,9 +443,20 @@ def _folder(dataset_id: str) -> Path:
     return folder
 
 
+# The first requests after a cold start arrive together. Without this lock each would read the
+# files and run discovery on its own, multiplying memory on a small instance; with it, one does the
+# work and the others wait for the cached result.
+_compute_lock = threading.RLock()
+
+
 @lru_cache(maxsize=8)
-def _ingest(folder: str):
+def _ingest_uncached(folder: str):
     return ingest_folder(folder)
+
+
+def _ingest(folder: str):
+    with _compute_lock:
+        return _ingest_uncached(folder)
 
 
 def _events(dataset_id: str):
@@ -488,7 +499,9 @@ def _discovery_cached(folder: str, train_days: int):
 
 
 def _discovery(dataset_id: str, train_days: int):
-    return _discovery_cached(str(_folder(dataset_id)), train_days)
+    folder = str(_folder(dataset_id))
+    with _compute_lock:
+        return _discovery_cached(folder, train_days)
 
 
 def _spec(data: dict) -> AgentSpec:

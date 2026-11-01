@@ -23,7 +23,7 @@ def client(tmp_path_factory):
     patch.setenv("SHADOWCOST_WORKSPACE", str(root / "workspace"))
     patch.setenv("SHADOWCOST_SAMPLE", str(sample))
     patch.setenv("SHADOWCOST_SPECS", str(SPECS))
-    api._ingest.cache_clear()
+    api._ingest_uncached.cache_clear()
     api._discovery_cached.cache_clear()
     yield TestClient(api.app)
     patch.undo()
@@ -157,3 +157,19 @@ def test_execute_queue_and_decide(client):
     assert again.status_code == 409
     bad = client.post("/datasets/sample/execute", json=body | {"stage": "yolo"})
     assert bad.status_code == 422
+
+
+def test_concurrent_first_requests_share_one_computation(client):
+    from concurrent.futures import ThreadPoolExecutor
+
+    api._ingest_uncached.cache_clear()
+    api._discovery_cached.cache_clear()
+    paths = [
+        "/datasets/sample",
+        "/datasets/sample/events?limit=3",
+        "/datasets/sample/workflows",
+    ] * 3
+    with ThreadPoolExecutor(max_workers=9) as pool:
+        statuses = list(pool.map(lambda p: client.get(p).status_code, paths))
+    assert statuses == [200] * len(paths)
+    assert api._ingest_uncached.cache_info().misses == 1

@@ -1,5 +1,9 @@
 # ShadowCost
 
+**Live:** [shadow-cost-ai.vercel.app](https://shadow-cost-ai.vercel.app) (site and app) ·
+[API docs](https://shadowcost-api.onrender.com/docs) · The API runs on Render's free plan and
+sleeps when idle, so the first visit can take about a minute to wake it.
+
 **ShadowCost finds repetitive spreadsheet and email work in small companies,
 drafts an agent for each workflow, and makes the agent prove itself in shadow
 mode against what the person actually did before it gets any autonomy.**
