@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 /** A footer of tiles (dealt): the last two rows of the board, every cell used. */
-const REPO = process.env.NEXT_PUBLIC_REPO_URL || "https://github.com";
+const REPO = process.env.NEXT_PUBLIC_REPO_URL || "https://github.com/Dattu-998/ShadowCost-AI";
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export function Footer() {
