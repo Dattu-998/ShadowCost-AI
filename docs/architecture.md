@@ -46,8 +46,8 @@ exist today are marked ✅.
 | Promote | `autonomy` ✅ | Shadow → draft → approval → autonomous. Promotion requires the Wilson lower bound of agreement to clear a threshold; demotion happens on an agreement drop or a critical failure. |
 | Spec + test | `agent` ✅ | An LLM drafts a spec (trigger + rules, as data) from measured evidence; drafts are validated, repaired against the evidence period, and backtested on held-out days. See [agents.md](agents.md). |
 | Approve + shadow | `agent` ✅ | Approval is stored against the spec's content hash; shadow mode replays outcomes through the autonomy ladder and records every outcome and stage change in SQLite. |
-| Execute | `execute` | Carry out the agent's actions at its current stage (draft, request approval or act). |
-| Report | `report` | Savings measured from execution data: time saved per case, agreement rates, and cases where a human had to step in. |
+| Execute | `execute` ✅ | Carry out a day's proposals as the stage allows: log (shadow), `.eml` drafts and suggested cell changes (draft), an approval queue (approval), or emails to an outbox and a new copy of the sheet (autonomous). Nothing is sent or overwritten directly. |
+| Report | `report` ✅ | Markdown/HTML report: work found, each agent's path up the ladder, savings estimated from stated assumptions and measured from the person's actual minutes, and every assumption. |
 
 ## Design decisions
 

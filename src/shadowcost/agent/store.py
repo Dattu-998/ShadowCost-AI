@@ -3,7 +3,8 @@
 Approval is what lets a spec leave the lab: ``shadow`` refuses to run a spec
 nobody has approved. Each shadow run stores every outcome with the stage the
 agent was at, and every promotion or demotion, so the trail behind an agent's
-autonomy can be audited later.
+autonomy can be audited later. Actions an agent proposes at the approval stage
+wait in ``actions`` until a person approves or rejects each one.
 """
 
 from __future__ import annotations
@@ -45,6 +46,16 @@ CREATE TABLE IF NOT EXISTS outcomes (
     human_day   TEXT,
     rule        TEXT,
     detail_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS actions (
+    action_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    spec_id     TEXT NOT NULL REFERENCES specs(spec_id),
+    case_id     TEXT NOT NULL,
+    day         TEXT NOT NULL,
+    proposal_json TEXT NOT NULL,
+    status      TEXT NOT NULL,  -- pending, approved, rejected
+    decided_by  TEXT,
+    decided_at  TEXT
 );
 CREATE TABLE IF NOT EXISTS stage_changes (
     run_id      INTEGER NOT NULL REFERENCES runs(run_id),
@@ -97,6 +108,61 @@ class Store:
             (spec_id(spec),),
         ).fetchone()
         return tuple(row) if row else None
+
+    def latest_stage(self, spec: AgentSpec) -> str | None:
+        """The stage the spec's most recent shadow run ended at."""
+        row = self.db.execute(
+            "SELECT final_stage FROM runs WHERE spec_id = ? ORDER BY run_id DESC LIMIT 1",
+            (spec_id(spec),),
+        ).fetchone()
+        return row[0] if row else None
+
+    def queue_action(self, spec: AgentSpec, proposal: dict) -> int:
+        sid = self.register(spec)
+        cursor = self.db.execute(
+            "INSERT INTO actions (spec_id, case_id, day, proposal_json, status) "
+            "VALUES (?, ?, ?, ?, 'pending')",
+            (sid, proposal["case_id"], proposal["day"], json.dumps(proposal)),
+        )
+        self.db.commit()
+        return cursor.lastrowid
+
+    def actions(self, status: str | None = None) -> list[dict]:
+        query = (
+            "SELECT action_id, spec_id, case_id, day, proposal_json, status, decided_by "
+            "FROM actions"
+        )
+        rows = self.db.execute(
+            query + (" WHERE status = ?" if status else "") + " ORDER BY action_id",
+            (status,) if status else (),
+        ).fetchall()
+        return [
+            {
+                "action_id": r[0],
+                "spec_id": r[1],
+                "case_id": r[2],
+                "day": r[3],
+                "proposal": json.loads(r[4]),
+                "status": r[5],
+                "decided_by": r[6],
+            }
+            for r in rows
+        ]
+
+    def decide(self, action_id: int, approved: bool, decided_by: str) -> dict:
+        """Approve or reject a pending action; returns it. Deciding twice is an error."""
+        found = [a for a in self.actions() if a["action_id"] == action_id]
+        if not found:
+            raise KeyError(f"no action {action_id}")
+        if found[0]["status"] != "pending":
+            raise ValueError(f"action {action_id} was already {found[0]['status']}")
+        status = "approved" if approved else "rejected"
+        self.db.execute(
+            "UPDATE actions SET status = ?, decided_by = ?, decided_at = ? WHERE action_id = ?",
+            (status, decided_by, _now(), action_id),
+        )
+        self.db.commit()
+        return found[0] | {"status": status, "decided_by": decided_by}
 
     def save_run(self, run: ShadowRun) -> int:
         sid = self.register(run.spec)

@@ -4,6 +4,9 @@
     shadowcost-agent backtest specs/W2.json data/sample     # replay against the person
     shadowcost-agent approve specs/W2.json --by "Dattu"     # record a human approval
     shadowcost-agent shadow specs/W2.json data/demo-year    # work alongside the person
+    shadowcost-agent execute specs/W2.json data/demo-year --day 2026-08-03
+    shadowcost-agent queue                                   # actions waiting for approval
+    shadowcost-agent decide 3 --approve --by "Dattu"
 
 Specs are drafted from the first ``--train-days`` of the data only. Everything
 after that is held out, for the backtest and for shadow mode.
@@ -22,7 +25,9 @@ from shadowcost.agent.generate import generate_spec
 from shadowcost.agent.shadow_mode import run_shadow
 from shadowcost.agent.spec import AgentSpec
 from shadowcost.agent.store import Store
+from shadowcost.autonomy import Stage
 from shadowcost.discover import discover
+from shadowcost.execute import apply_approved, execute_day, mailbox_owner, stage_from_name
 from shadowcost.ingest import ingest_folder
 from shadowcost.llm import ChatClient, load_dotenv
 from shadowcost.recommend import recommend
@@ -106,6 +111,55 @@ def cmd_shadow(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_execute(args: argparse.Namespace) -> int:
+    spec = _load(args.spec)
+    store = Store(args.db)
+    if not store.approval(spec):
+        print(
+            f"{args.spec} has not been approved; see 'shadowcost-agent approve'.", file=sys.stderr
+        )
+        return 2
+    events = ingest_folder(args.folder).events
+    stage_name = args.stage or store.latest_stage(spec) or "shadow"
+    result = execute_day(
+        spec, stage_from_name(stage_name), args.day, events, args.workspace, store,
+        sender=mailbox_owner(events),
+    )  # fmt: skip
+    for applied in apply_approved(spec, events, args.workspace, store, mailbox_owner(events)):
+        print(f"applied {len(applied.proposals)} approved actions from {applied.day}")
+    store.close()
+    print(result.summary())
+    return 0
+
+
+def cmd_queue(args: argparse.Namespace) -> int:
+    store = Store(args.db)
+    pending = store.actions("pending")
+    store.close()
+    if not pending:
+        print("No actions are waiting for approval.")
+    for a in pending:
+        p = a["proposal"]
+        email = f"; email '{p['email']['subject']}' to {p['email']['to']}" if p["email"] else ""
+        print(f"#{a['action_id']} {a['spec_id']} {a['day']} {a['case_id']} ({p['rule']}): "
+              f"set {p['updates']}{email}")  # fmt: skip
+    return 0
+
+
+def cmd_decide(args: argparse.Namespace) -> int:
+    store = Store(args.db)
+    try:
+        action = store.decide(args.action_id, args.approve, args.by)
+    except (KeyError, ValueError) as err:
+        print(err, file=sys.stderr)
+        return 2
+    finally:
+        store.close()
+    print(f"#{action['action_id']} {action['status']} by {args.by}; "
+          "approved actions are applied on the next 'execute'.")  # fmt: skip
+    return 0
+
+
 def _load(path: Path) -> AgentSpec:
     return AgentSpec.from_dict(json.loads(path.read_text(encoding="utf-8")))
 
@@ -147,6 +201,29 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--by", required=True)
     p.add_argument("--db", type=Path, default=DEFAULT_DB)
     p.set_defaults(func=cmd_approve)
+
+    p = sub.add_parser("execute", help="carry out a day's proposals as the agent's stage allows")
+    p.add_argument("spec", type=Path)
+    p.add_argument("folder", type=Path)
+    p.add_argument("--day", type=date.fromisoformat, required=True)
+    p.add_argument("--stage", choices=[s.name.lower() for s in Stage],
+                   help="default: where the latest shadow run ended")  # fmt: skip
+    p.add_argument("--workspace", type=Path, default=Path("workspace"))
+    p.add_argument("--db", type=Path, default=DEFAULT_DB)
+    p.set_defaults(func=cmd_execute)
+
+    p = sub.add_parser("queue", help="list actions waiting for approval")
+    p.add_argument("--db", type=Path, default=DEFAULT_DB)
+    p.set_defaults(func=cmd_queue)
+
+    p = sub.add_parser("decide", help="approve or reject a queued action")
+    p.add_argument("action_id", type=int)
+    decision = p.add_mutually_exclusive_group(required=True)
+    decision.add_argument("--approve", action="store_true")
+    decision.add_argument("--reject", action="store_true")
+    p.add_argument("--by", required=True)
+    p.add_argument("--db", type=Path, default=DEFAULT_DB)
+    p.set_defaults(func=cmd_decide)
 
     args = parser.parse_args(argv)
     return args.func(args)

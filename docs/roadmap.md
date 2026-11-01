@@ -28,7 +28,10 @@ public repo, README, architecture diagram, demo video and a live deployment.
       compare outcomes and apply the autonomy ladder. (Approval gate and
       SQLite audit trail; over a year, two agents reach autonomy and the
       chasing agent correctly stays in shadow.)
-- [ ] **6. Execute + report.** Stage-aware execution and a savings report with
-      stated assumptions.
+- [x] **6. Execute + report.** Stage-aware execution and a savings report with
+      stated assumptions. (`shadowcost.execute`: drafts, an approval queue and
+      autonomous actions written to an outbox and new sheet copies, never sent
+      or overwritten directly. `shadowcost.report`: estimated vs measured
+      savings. Over a held-out year: 40.9 h estimated, 47.7 h measured.)
 - [ ] **7. UI + API.** A web UI that runs the whole flow.
 - [ ] **8. Ship.** Live deployment, demo video, polished README.
