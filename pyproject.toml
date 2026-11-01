@@ -19,6 +19,7 @@ dependencies = [
 shadowcost-synth = "shadowcost.synth.__main__:main"
 shadowcost-ingest = "shadowcost.ingest.__main__:main"
 shadowcost-discover = "shadowcost.discover.__main__:main"
+shadowcost-agent = "shadowcost.agent.__main__:main"
 
 [project.optional-dependencies]
 dev = [

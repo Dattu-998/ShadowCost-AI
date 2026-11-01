@@ -1,0 +1,140 @@
+{
+  "workflow_id": "W3",
+  "name": "Invoice payment reminders",
+  "summary": "On scheduled days the agent scans the invoices sheet for overdue items and sends reminder emails. It updates the reminder count, last reminder date and status according to the reminder stage.",
+  "series": "invoices",
+  "trigger": {
+    "kind": "schedule",
+    "weekdays": [
+      0,
+      3
+    ]
+  },
+  "rules": [
+    {
+      "name": "First reminder",
+      "when": [
+        {
+          "column": "status",
+          "op": "eq",
+          "value": "sent"
+        },
+        {
+          "column": "reminders_sent",
+          "op": "eq",
+          "value": "0"
+        },
+        {
+          "column": "due_date",
+          "op": "days_since_at_least",
+          "value": 7
+        },
+        {
+          "column": "issue_date",
+          "op": "days_since_at_least",
+          "value": 21
+        }
+      ],
+      "set": {
+        "last_reminder_date": "{{today}}",
+        "reminders_sent": "{{row.reminders_sent + 1}}",
+        "status": "overdue"
+      },
+      "email": {
+        "to": "{{row.customer_email}}",
+        "subject": "Invoice {{row.invoice_id}} - payment reminder",
+        "body": "Hi {{row.customer}} team,\n\nOur records show invoice {{row.invoice_id}} ({{money(row.amount)}}, due {{format_date(row.due_date)}}) is still unpaid.\n\nCould you let us know when we can expect payment?\n\nKind regards,\nAccounts team\nFernhill Supplies"
+      }
+    },
+    {
+      "name": "Second reminder",
+      "when": [
+        {
+          "column": "status",
+          "op": "eq",
+          "value": "overdue"
+        },
+        {
+          "column": "reminders_sent",
+          "op": "eq",
+          "value": "1"
+        },
+        {
+          "column": "last_reminder_date",
+          "op": "days_since_at_least",
+          "value": 7
+        },
+        {
+          "column": "due_date",
+          "op": "days_since_at_least",
+          "value": 15
+        }
+      ],
+      "set": {
+        "last_reminder_date": "{{today}}",
+        "reminders_sent": "{{row.reminders_sent + 1}}"
+      },
+      "email": {
+        "to": "{{row.customer_email}}",
+        "subject": "Second reminder: invoice {{row.invoice_id}}",
+        "body": "Dear {{row.customer}},\n\nWe still haven't received payment for invoice {{row.invoice_id}} ({{money(row.amount)}}), due {{format_date(row.due_date)}}.\n\nPlease let us know if there is a problem with the invoice.\n\nThanks,\nAccounts\nFernhill Supplies"
+      }
+    }
+  ],
+  "source": {
+    "generated_by": "openai/gpt-oss-120b",
+    "workflow": "send 'Invoice <id> - payment reminder' + update invoices [last_reminder_date, reminders_sent, status]",
+    "evidence_period": [
+      "2026-01-05",
+      "2026-03-25"
+    ],
+    "attempts": 3,
+    "notes": []
+  },
+  "evaluation": {
+    "minutes_per_case": 5.5,
+    "evidence_period": {
+      "outcomes": 28,
+      "kinds": {
+        "match": 20,
+        "agent_only": 6,
+        "mismatch": 2
+      },
+      "agreement": 0.714,
+      "agreement_lower_bound": 0.529,
+      "action_precision": 0.786,
+      "action_recall": 1.0,
+      "field_agreement": {
+        "email": 1.0,
+        "last_reminder_date": 0.909,
+        "reminders_sent": 1.0,
+        "status": 1.0
+      },
+      "median_days_ahead_of_human": 0.0,
+      "errors": 0
+    },
+    "held_out": {
+      "from": "2026-03-26",
+      "to": "2026-05-04",
+      "outcomes": 27,
+      "kinds": {
+        "match": 21,
+        "agent_only": 3,
+        "human_only": 2,
+        "mismatch": 1
+      },
+      "agreement": 0.778,
+      "agreement_lower_bound": 0.592,
+      "action_precision": 0.88,
+      "action_recall": 0.917,
+      "field_agreement": {
+        "email": 1.0,
+        "last_reminder_date": 0.955,
+        "reminders_sent": 1.0,
+        "status": 1.0
+      },
+      "median_days_ahead_of_human": 0.0,
+      "errors": 0
+    }
+  }
+}

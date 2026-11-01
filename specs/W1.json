@@ -1,0 +1,69 @@
+{
+  "workflow_id": "W1",
+  "name": "Send Fernhill Supplies invoice email",
+  "summary": "When a new invoice row is added, the agent emails the customer with the invoice details. It runs immediately for each newly created row.",
+  "series": "invoices",
+  "trigger": {
+    "kind": "new_row"
+  },
+  "rules": [
+    {
+      "name": "Send invoice email",
+      "when": [],
+      "set": {},
+      "email": {
+        "to": "{{row.customer_email}}",
+        "subject": "Invoice {{row.invoice_id}} from Fernhill Supplies",
+        "body": "Dear {{row.customer}},\n\nAttached is invoice {{row.invoice_id}} ({{money(row.amount)}}). Payment is due by {{format_date(row.due_date)}}.\n\nPlease include the invoice number as your payment reference.\n\nBest,\nFernhill Supplies Accounts"
+      }
+    }
+  ],
+  "source": {
+    "generated_by": "openai/gpt-oss-120b",
+    "workflow": "add a row to invoices + send 'Fernhill Supplies invoice <id>'",
+    "evidence_period": [
+      "2026-01-05",
+      "2026-03-25"
+    ],
+    "attempts": 1,
+    "notes": [
+      "No column values are updated after the row is created.",
+      "The rule fires for every new row; no additional conditions are needed."
+    ]
+  },
+  "evaluation": {
+    "minutes_per_case": 7.0,
+    "evidence_period": {
+      "outcomes": 75,
+      "kinds": {
+        "match": 75
+      },
+      "agreement": 1.0,
+      "agreement_lower_bound": 0.951,
+      "action_precision": 1.0,
+      "action_recall": 1.0,
+      "field_agreement": {
+        "email": 1.0
+      },
+      "median_days_ahead_of_human": 0,
+      "errors": 0
+    },
+    "held_out": {
+      "from": "2026-03-26",
+      "to": "2026-05-04",
+      "outcomes": 34,
+      "kinds": {
+        "match": 34
+      },
+      "agreement": 1.0,
+      "agreement_lower_bound": 0.898,
+      "action_precision": 1.0,
+      "action_recall": 1.0,
+      "field_agreement": {
+        "email": 1.0
+      },
+      "median_days_ahead_of_human": 0.0,
+      "errors": 0
+    }
+  }
+}

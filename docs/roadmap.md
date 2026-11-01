@@ -20,10 +20,14 @@ public repo, README, architecture diagram, demo video and a live deployment.
       cost. Evaluate discovery against the generator's ground truth
       (precision/recall). (`shadowcost.discover`, `shadowcost.recommend`;
       method and results in [discovery.md](discovery.md).)
-- [ ] **4. Spec + test.** Generate an agent spec with an LLM and replay it on
-      historical cases.
-- [ ] **5. Shadow loop.** Persist cases, run the agent alongside new cases,
-      compare outcomes and apply the autonomy ladder.
+- [x] **4. Spec + test.** Generate an agent spec with an LLM and replay it on
+      historical cases. (`shadowcost.agent`, Groq `openai/gpt-oss-120b`. LLM
+      specs match the true-rule reference on held-out days. See
+      [agents.md](agents.md).)
+- [x] **5. Shadow loop.** Persist cases, run the agent alongside new cases,
+      compare outcomes and apply the autonomy ladder. (Approval gate and
+      SQLite audit trail; over a year, two agents reach autonomy and the
+      chasing agent correctly stays in shadow.)
 - [ ] **6. Execute + report.** Stage-aware execution and a savings report with
       stated assumptions.
 - [ ] **7. UI + API.** A web UI that runs the whole flow.

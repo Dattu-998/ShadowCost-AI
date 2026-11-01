@@ -57,6 +57,21 @@ shadowcost-ingest data/sample --out events.csv
 shadowcost-discover data/sample --evaluate
 ```
 
+- `shadowcost.agent`: an LLM (Groq) drafts an agent spec for each workflow
+  from measured evidence. A deterministic engine runs it, with a whitelisted
+  expression language so specs can't run code. The spec is backtested on
+  held-out days, approved by a person, then run in shadow mode, where it climbs
+  the autonomy ladder. On held-out data the LLM's specs match specs written from
+  the simulator's true rules. Over a year, the invoice and payment agents reach
+  autonomy and the chasing agent stays in shadow. See [docs/agents.md](docs/agents.md).
+
+```bash
+cp .env.example .env    # then add your GROQ_API_KEY
+shadowcost-agent generate data/sample --out specs
+shadowcost-agent approve specs/W1.json --by "<name>"
+shadowcost-agent shadow specs/W1.json data/sample
+```
+
 ## Synthetic data
 
 Real small-company data with labels for "this was repetitive work, and it took

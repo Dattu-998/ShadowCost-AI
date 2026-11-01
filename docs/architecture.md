@@ -42,10 +42,10 @@ exist today are marked ✅.
 | Discover | `discover` ✅ | Cluster sent emails into templates, group work into per-case daily episodes, merge similar episode signatures into workflows, and infer each one's trigger (outside event, new row or weekly schedule) and date condition. See [discovery.md](discovery.md). |
 | Recommend | `recommend` ✅ | Rank workflows by addressable hours: estimated time cost × regularity × consistency. Every estimate lists its assumptions, with an upper bound observed from email gaps. |
 | (Grading) | `evaluation` ✅ | Scores discovery against a synthetic dataset's ground truth; the only code that reads `ground_truth/`. |
-| Generate spec | `spec` | Turn a workflow into an agent spec: inputs, steps, outputs and the fields to compare in shadow mode. |
-| Test | `spec` | Replay the spec against historical cases before anyone approves it. |
 | Shadow | `shadow` ✅ | Compare the agent's output with the human's, field by field, with tolerance for numbers, case and whitespace. |
 | Promote | `autonomy` ✅ | Shadow → draft → approval → autonomous. Promotion requires the Wilson lower bound of agreement to clear a threshold; demotion happens on an agreement drop or a critical failure. |
+| Spec + test | `agent` ✅ | An LLM drafts a spec (trigger + rules, as data) from measured evidence; drafts are validated, repaired against the evidence period, and backtested on held-out days. See [agents.md](agents.md). |
+| Approve + shadow | `agent` ✅ | Approval is stored against the spec's content hash; shadow mode replays outcomes through the autonomy ladder and records every outcome and stage change in SQLite. |
 | Execute | `execute` | Carry out the agent's actions at its current stage (draft, request approval or act). |
 | Report | `report` | Savings measured from execution data: time saved per case, agreement rates, and cases where a human had to step in. |
 

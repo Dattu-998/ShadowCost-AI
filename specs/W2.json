@@ -1,0 +1,87 @@
+{
+  "workflow_id": "W2",
+  "name": "Mark invoices paid on bank credit",
+  "summary": "When a bank credit event occurs for an invoice, the agent records the payment date and marks the invoice as paid. It runs for each new credit linked to an invoice row.",
+  "series": "invoices",
+  "trigger": {
+    "kind": "event",
+    "activity": "bank.credit"
+  },
+  "rules": [
+    {
+      "name": "Mark as paid",
+      "when": [
+        {
+          "column": "paid_date",
+          "op": "empty"
+        },
+        {
+          "column": "status",
+          "op": "in",
+          "value": [
+            "sent",
+            "overdue"
+          ]
+        }
+      ],
+      "set": {
+        "paid_date": "{{event.date}}",
+        "status": "paid"
+      }
+    }
+  ],
+  "source": {
+    "generated_by": "openai/gpt-oss-120b",
+    "workflow": "update invoices [paid_date, status]",
+    "evidence_period": [
+      "2026-01-05",
+      "2026-03-25"
+    ],
+    "attempts": 1,
+    "notes": [
+      "Assumes paid_date is empty before update; reminders_sent not used in conditions as it does not affect the update."
+    ]
+  },
+  "evaluation": {
+    "minutes_per_case": 4.1,
+    "evidence_period": {
+      "outcomes": 48,
+      "kinds": {
+        "match": 46,
+        "mismatch": 2
+      },
+      "agreement": 0.958,
+      "agreement_lower_bound": 0.86,
+      "action_precision": 1.0,
+      "action_recall": 1.0,
+      "field_agreement": {
+        "email": 0.979,
+        "paid_date": 0.979,
+        "status": 1.0
+      },
+      "median_days_ahead_of_human": 1.0,
+      "errors": 0
+    },
+    "held_out": {
+      "from": "2026-03-26",
+      "to": "2026-05-04",
+      "outcomes": 36,
+      "kinds": {
+        "match": 28,
+        "mismatch": 4,
+        "agent_only": 4
+      },
+      "agreement": 0.778,
+      "agreement_lower_bound": 0.619,
+      "action_precision": 0.889,
+      "action_recall": 1.0,
+      "field_agreement": {
+        "email": 1.0,
+        "paid_date": 0.875,
+        "status": 1.0
+      },
+      "median_days_ahead_of_human": 1.0,
+      "errors": 0
+    }
+  }
+}
