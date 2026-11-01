@@ -1,0 +1,19 @@
+# Render Blueprint: the ShadowCost API.
+# New > Blueprint in the Render dashboard, pick this repo, then set the two
+# secret values when prompted.
+services:
+  - type: web
+    name: shadowcost-api
+    runtime: python
+    plan: free
+    buildCommand: pip install ".[api]"
+    startCommand: uvicorn shadowcost.api:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: SHADOWCOST_WORKSPACE
+        value: /tmp/shadowcost
+      # Your Vercel URL, e.g. https://shadowcost.vercel.app (comma-separate several).
+      - key: SHADOWCOST_CORS_ORIGINS
+        sync: false

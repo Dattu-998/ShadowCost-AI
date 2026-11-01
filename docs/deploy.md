@@ -1,44 +1,50 @@
 # Deploying ShadowCost
 
-## Streamlit Community Cloud (free)
+Two pieces: the **API** (FastAPI, Python) on Render and the **web app** (Next.js) on Vercel.
+Both have free plans. Deploy the API first, because the web app needs its URL.
 
-1. Push the repository to GitHub (public, or private with Streamlit's access).
-2. Go to <https://share.streamlit.io>, sign in with GitHub, and choose
-   **Create app → Deploy a public app from GitHub**.
-3. Repository: your ShadowCost repo. Branch: `main`. Main file path:
-   `app/streamlit_app.py`. Streamlit installs from `requirements.txt`, which
-   installs this package with its `app` extras.
-4. Optional, to draft specs for uploaded data: **Advanced settings → Secrets**:
+## 1. The API on Render
 
-   ```toml
-   GROQ_API_KEY = "gsk_..."
-   ```
+1. Push the repository to GitHub.
+2. In the Render dashboard choose **New → Blueprint**, pick the repository, and Render reads
+   `render.yaml`: one free web service, `shadowcost-api`, built with `pip install ".[api]"` and
+   started with `uvicorn shadowcost.api:app`.
+3. When asked for `SHADOWCOST_CORS_ORIGINS`, enter your Vercel URL (for example
+   `https://shadowcost.vercel.app`). Comma-separate several. Until you know it, `*` works.
+4. Deploy, then open `https://<service>.onrender.com/health` and `/docs` to check it.
 
-   Without it the app runs on the bundled specs, which cover the sample and the
-   simulated year.
-5. Deploy. The first load of "Simulated year" takes about 20 seconds while it
-   generates and ingests a year of data; after that it's cached.
+Things to know about the free plan:
 
-The app's workspace (approvals, outbox, uploads) lives on the container's disk,
-so it resets when Streamlit restarts the app. That's fine for a demo. For real
-use, point `SHADOWCOST_WORKSPACE` at persistent storage.
+- The service **sleeps after about 15 minutes idle**. The first request after that takes about
+  a minute; the app shows "Waking the API" while it waits.
+- The disk is temporary. Approvals, shadow runs and the approval queue live in SQLite under
+  `/tmp/shadowcost` and reset on each restart or deploy. That's fine for a demo; for real use,
+  attach a Render disk and point `SHADOWCOST_WORKSPACE` at it.
+- The "full year" dataset is generated on its first request (about 20 seconds), then reused
+  until the next restart.
 
-## Docker (Hugging Face Spaces, Render, Fly.io, or anywhere)
+Drafting new specs with the LLM is a CLI step (`shadowcost-agent generate`), so the API needs no
+Groq key. The bundled `specs/` were drafted that way.
+
+## 2. The web app on Vercel
+
+1. In Vercel choose **Add New → Project** and import the same repository.
+2. Set **Root Directory** to `web`. Vercel detects Next.js.
+3. Add the environment variables:
+   - `NEXT_PUBLIC_API_URL`: the Render URL, e.g. `https://shadowcost-api.onrender.com`
+   - `NEXT_PUBLIC_REPO_URL`: the GitHub repository URL (used by the footer links)
+4. Deploy. Every route is prerendered as a static page; the app's data comes from the API in
+   the browser.
+5. Put the Vercel URL into Render's `SHADOWCOST_CORS_ORIGINS` if you used `*` before.
+
+## Docker
+
+The `Dockerfile` builds the API alone, for any container host:
 
 ```bash
-docker build -t shadowcost .
-docker run -p 8501:8501 -e GROQ_API_KEY=gsk_... shadowcost
+docker build -t shadowcost-api .
+docker run -p 8000:8000 shadowcost-api
 ```
 
-On Hugging Face Spaces, create a **Docker** Space, push this repository to it,
-set the app port to 8501, and add `GROQ_API_KEY` as a secret.
-
-## API
-
-```bash
-pip install -e ".[app]"
-uvicorn shadowcost.api:app --host 0.0.0.0 --port 8000
-```
-
-Interactive docs are at `/docs`. The API has no authentication: put it behind
-one before exposing it beyond a demo.
+The API has no authentication. Keep it to demo data, or put it behind authentication before
+pointing it at a real company's files.

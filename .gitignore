@@ -39,3 +39,7 @@ workspace/
 
 # Local Claude Code / editor settings
 .claude/
+
+# Design and browser-test working files
+.taste-skill/
+.playwright-cli/

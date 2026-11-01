@@ -1,0 +1,186 @@
+@import "tailwindcss";
+
+/*
+ * Two runs, one identity (taste skill):
+ * - The landing page: "Colour chapters" (seed 708898212). Slate, blush, sage and olive are the four
+ *   stages an agent climbs (watching, drafting, asking, acting alone). Olive, the colour of acting
+ *   alone, is the only colour that acts: every button.
+ * - The app: "Framed sheet" (seed 1487665926). A slate-tinted L-frame, work on a white sheet; colour
+ *   only on data, with olive on the main series and the four stage colours only on the ladder.
+ * One typeface: Schibsted Grotesk.
+ */
+@theme {
+  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
+
+  /* chapters */
+  --color-paper: #e3e2da;
+  --color-slate: #a6b3bc;
+  --color-blush: #d6c4b8;
+  --color-sage: #b7c8be;
+  --color-olive: #2c3620;
+  --color-ink: #1c1c1c;
+  --color-ink-soft: #38424a;
+
+  /* app: framed sheet */
+  --color-frame: #edf0f2;
+  --color-sheet: #ffffff;
+  --color-edge: #e4e7ea;
+  --color-rule: #eef0f2;
+  --color-control: #d5dadf;
+  --color-muted: #5b6670;
+  --color-hover: #f4f6f7;
+  --color-good: #2f6b3a;
+  --color-good-tint: #e6f0e7;
+  --color-bad: #9b3524;
+  --color-bad-tint: #f6e7e3;
+  --color-wait: #7a5a12;
+  --color-wait-tint: #f7efd9;
+
+  /* landing type steps (dealt) */
+  --text-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --text-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --text-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --text-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
+  --text-section: clamp(48px, 6.4vw, 104px);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-olive);
+  color: var(--color-paper);
+}
+
+/* Display type (dealt: weight 800, tracking -0.05em, leading 0.88). */
+.display {
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.88;
+}
+
+/* --- motion --------------------------------------------------------------------------------- */
+
+/* Signature move: each headline line rises from behind its own baseline. Pure CSS, so the
+   headline is never left hidden when scripts fail. */
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+.line-mask > span {
+  display: block;
+  animation: line-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.line-mask:nth-child(2) > span {
+  animation-delay: 110ms;
+}
+.fade-after-lines {
+  animation: fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) 650ms both;
+}
+@keyframes line-rise {
+  from {
+    transform: translateY(105%);
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* Section entrances: only hidden once the page knows scripts run (html.js), so content never
+   stays invisible without JavaScript. */
+.js .reveal:not(.is-in) {
+  opacity: 0;
+  transform: translateY(24px);
+}
+.reveal {
+  transition:
+    opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--delay, 0ms);
+}
+
+/* Bars grow from the edge they stand on. */
+.js .grow:not(.is-in) .bar {
+  transform: scaleY(0);
+}
+.bar {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--delay, 0ms);
+}
+
+/* The closing dialog is a real overlay of the product, so it casts its shadow. */
+.floating-dialog {
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.35); /* taste-skill-ignore: a floating dialog */
+}
+
+.press {
+  transition:
+    transform 120ms ease-out,
+    background-color 160ms ease-out,
+    color 160ms ease-out;
+}
+.press:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* One moving picture: the ledger page drifts slowly, like a page being read. */
+.drift {
+  animation: drift 24s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  from {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.08) translate3d(-1.5%, -3%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drift {
+    animation: none;
+  }
+  .line-mask > span,
+  .fade-after-lines {
+    animation: none;
+  }
+  .js .reveal:not(.is-in),
+  .js .grow:not(.is-in) .bar {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal,
+  .bar,
+  /* The closing dialog is a real overlay of the product, so it casts its shadow. */
+.floating-dialog {
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.35); /* taste-skill-ignore: a floating dialog */
+}
+
+.press {
+    transition: none;
+  }
+}

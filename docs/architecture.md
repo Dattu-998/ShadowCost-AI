@@ -49,7 +49,7 @@ exist today are marked ✅.
 | Execute | `execute` ✅ | Carry out a day's proposals as the stage allows: log (shadow), `.eml` drafts and suggested cell changes (draft), an approval queue (approval), or emails to an outbox and a new copy of the sheet (autonomous). Nothing is sent or overwritten directly. |
 | Report | `report` ✅ | Markdown/HTML report: work found, each agent's path up the ladder, savings estimated from stated assumptions and measured from the person's actual minutes, and every assumption. |
 
-| UI + API | `app/`, `api` ✅ | Streamlit app and FastAPI service over the whole flow; see [deploy.md](deploy.md). |
+| UI + API | `web/`, `api` ✅ | A Next.js landing page and app (Vercel) over the FastAPI service (Render); see [deploy.md](deploy.md). |
 
 ## Design decisions
 

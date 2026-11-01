@@ -67,7 +67,7 @@ flowchart LR
 | `agent` | An LLM (Groq) drafts a spec as data; a deterministic engine runs it; expressions are whitelisted so specs can't run code; backtest, approval and shadow mode |
 | `execute` | Acts as the stage allows: drafts, an approval queue, or an outbox and new sheet copies. Never sends or overwrites directly |
 | `report` | Markdown/HTML savings report with estimated and measured figures |
-| `api`, `app/` | FastAPI service and Streamlit UI over the whole flow |
+| `api`, `web/` | FastAPI service (Render) and a Next.js landing page and app (Vercel) over the whole flow |
 
 More detail: [architecture](docs/architecture.md), [discovery method](docs/discovery.md),
 [agents](docs/agents.md), [roadmap](docs/roadmap.md).
@@ -79,14 +79,15 @@ Requires Python 3.11+.
 ```bash
 python -m venv .venv
 source .venv/Scripts/activate        # Windows Git Bash; .venv/bin/activate on macOS/Linux
-pip install -e ".[dev,app]"
+pip install -e ".[dev,api]"
 pytest
 ```
 
-Run the web app:
+Run the API and the web app (see [web/README.md](web/README.md)):
 
 ```bash
-streamlit run app/streamlit_app.py
+uvicorn shadowcost.api:app --reload
+cd web && npm install && npm run dev      # http://localhost:3000
 ```
 
 Or follow the flow from the command line:
@@ -111,14 +112,15 @@ list workflows, backtest, approve, shadow and report. Its docs are at `/docs`.
 
 ## Deploy
 
-See [docs/deploy.md](docs/deploy.md) for Streamlit Community Cloud (free), Docker
-and the API.
+The API deploys to Render (`render.yaml`) and the web app to Vercel (root directory `web`).
+See [docs/deploy.md](docs/deploy.md).
 
 ## Repository layout
 
 ```
 src/shadowcost/   library: synth, ingest, discover, recommend, agent, execute, report, api
-app/              Streamlit UI
+web/              Next.js landing page and app (Vercel)
+scripts/          landing-page data export
 specs/            agent specs drafted by the LLM for the sample, with backtest results
 data/sample/      4-month synthetic dataset with data card and ground truth
 docs/             architecture, method write-ups, deploy guide, demo script
