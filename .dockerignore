@@ -1,0 +1,8 @@
+.venv
+.git
+.cache
+workspace
+data/*
+!data/sample
+.env
+*.db

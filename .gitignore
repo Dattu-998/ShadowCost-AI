@@ -33,3 +33,9 @@ desktop.ini
 
 # LLM response cache
 .cache/
+
+# App workspace (uploads, approvals db, outbox)
+workspace/
+
+# Local Claude Code / editor settings
+.claude/

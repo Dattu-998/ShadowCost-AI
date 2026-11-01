@@ -33,5 +33,13 @@ public repo, README, architecture diagram, demo video and a live deployment.
       autonomous actions written to an outbox and new sheet copies, never sent
       or overwritten directly. `shadowcost.report`: estimated vs measured
       savings. Over a held-out year: 40.9 h estimated, 47.7 h measured.)
-- [ ] **7. UI + API.** A web UI that runs the whole flow.
-- [ ] **8. Ship.** Live deployment, demo video, polished README.
+- [x] **7. UI + API.** A web UI that runs the whole flow. (Streamlit app in
+      `app/`, covering upload, discover, agents with approval, shadow mode
+      with stage chart, execute with approval queue, and report. FastAPI
+      service in `shadowcost.api`, with zip uploads hardened against path
+      traversal.)
+- [x] **8. Ship.** Polished README with results and architecture diagram,
+      CI (ruff and pytest on Python 3.11/3.12), Dockerfile, Streamlit Cloud
+      config, [deploy guide](deploy.md) and [demo script](demo.md), MIT license.
+      The live deployment and the recorded video need the owner's accounts;
+      follow the deploy guide and demo script.
