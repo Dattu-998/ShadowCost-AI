@@ -18,35 +18,38 @@ allowed to call the API (default ``*``; the API uses no cookies).
 
 from __future__ import annotations
 
-import io
 import json
 import os
 import threading
 import uuid
 import zipfile
 from datetime import date, timedelta
-from functools import lru_cache
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from shadowcost import __version__
+from shadowcost import __version__, compute
 from shadowcost.agent.backtest import backtest
-from shadowcost.agent.shadow_mode import TIME_SAVED_SHARE, run_shadow
+from shadowcost.agent.shadow_mode import run_shadow
 from shadowcost.agent.spec import AgentSpec, SpecError
 from shadowcost.agent.store import Store, spec_id
-from shadowcost.autonomy import DEFAULT_POLICY, Stage
-from shadowcost.discover import discover
+from shadowcost.autonomy import Stage
 from shadowcost.execute import execute_day, mailbox_owner
-from shadowcost.ingest import ingest_folder
-from shadowcost.recommend import recommend
 from shadowcost.report import build_report
+from shadowcost.saas.routes import router as saas_router
 from shadowcost.synth import Config, simulate, write_dataset
+from shadowcost.uploads import ALLOWED_SUFFIXES, MAX_UPLOAD_BYTES, extract_zip  # noqa: F401
+from shadowcost.views import (
+    backtest_view,
+    events_view,
+    execute_view,
+    shadow_view,
+    summary_view,
+    workflows_view,
+)
 
-MAX_UPLOAD_BYTES = 50 * 1024 * 1024
-ALLOWED_SUFFIXES = {".csv", ".xlsx", ".xls", ".json", ".jsonl", ".md"}
 DATASETS = {
     "sample": "Fernhill Supplies, 4 months (bundled)",
     "year": "Fernhill Supplies, a simulated year",
@@ -73,9 +76,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in os.environ.get("SHADOWCOST_CORS_ORIGINS", "*").split(",")],
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"],
 )
+app.include_router(saas_router)
 
 
 class SpecRequest(BaseModel):
@@ -146,23 +150,7 @@ def dataset_summary(dataset_id: str) -> dict:
 
 @app.get("/datasets/{dataset_id}/events")
 def recent_events(dataset_id: str, limit: int = 50, source: str | None = None) -> list[dict]:
-    events = _events(dataset_id)
-    if source:
-        events = events[events["source"] == source]
-    rows = events.tail(max(1, min(limit, 500))).iloc[::-1]
-    return [
-        {
-            "event_id": r.event_id,
-            "timestamp": r.timestamp.isoformat(),
-            "source": r.source,
-            "activity": r.activity,
-            "case_id": r.case_id,
-            "link_method": r.link_method,
-            "actor": r.actor,
-            "detail": _event_detail(r.source, r.payload),
-        }
-        for r in rows.itertuples()
-    ]
+    return events_view(_events(dataset_id), limit, source)
 
 
 # --- discovery --------------------------------------------------------------------------------
@@ -170,52 +158,7 @@ def recent_events(dataset_id: str, limit: int = 50, source: str | None = None) -
 
 @app.get("/datasets/{dataset_id}/workflows")
 def workflows(dataset_id: str, train_days: int = 80) -> dict:
-    discovery, split = _discovery(dataset_id, train_days)
-    labels = {t.template_id: t.label for t in discovery.templates}
-    return {
-        "evidence_from": discovery.events["timestamp"].min().date(),
-        "evidence_to": split - timedelta(days=1),
-        "episodes": len(discovery.episodes),
-        "templates": len(discovery.templates),
-        "workflows": [
-            {
-                "workflow_id": r.workflow.workflow_id,
-                "name": r.workflow.name,
-                "instances": r.workflow.size,
-                "instances_per_week": r.workflow.instances_per_week,
-                "instances_per_month": r.instances_per_month,
-                "trigger": {
-                    "kind": r.workflow.trigger.kind,
-                    "description": r.workflow.trigger.description,
-                    "support": round(r.workflow.trigger.support, 3),
-                },
-                "condition": (
-                    {
-                        "description": r.workflow.condition.description,
-                        "support": r.workflow.condition.support,
-                        "precision": r.workflow.condition.precision,
-                    }
-                    if r.workflow.condition
-                    else None
-                ),
-                "variants": [
-                    {"steps": [_step_label(s, labels) for s in sig], "count": n}
-                    for sig, n in r.workflow.variants[:4]
-                ],
-                "regularity": r.workflow.regularity,
-                "consistency": r.workflow.consistency,
-                "minutes_per_instance": r.minutes_per_instance,
-                "observed_minutes": r.observed_minutes,
-                "hours_per_month": r.hours_per_month,
-                "automation_score": r.automation_score,
-                "addressable_hours_per_month": r.addressable_hours_per_month,
-                "assumptions": r.assumptions,
-                "caveats": r.caveats,
-            }
-            for r in recommend(discovery)
-        ],
-        "irregular": [{"name": w.name, "instances": w.size} for w in discovery.irregular],
-    }
+    return workflows_view(*_discovery(dataset_id, train_days))
 
 
 # --- specs and approval -----------------------------------------------------------------------
@@ -260,23 +203,7 @@ def run_backtest(dataset_id: str, request: SpecRequest) -> dict:
     spec = _spec(request.spec)
     events = _events(dataset_id)
     start, end = _period(spec, events, request.start, request.end)
-    result = backtest(spec, events, start, end)
-    return {
-        "from": start,
-        "to": end,
-        **result.metrics(),
-        "examples": [
-            {
-                "case_id": o.case_id,
-                "kind": o.kind,
-                "agent_day": o.agent_day,
-                "human_day": o.human_day,
-                "rule": o.rule,
-                "differing": [f for f, ok in o.field_matches.items() if not ok],
-            }
-            for o in [o for o in result.outcomes if o.kind != "match"][:8]
-        ],
-    }
+    return backtest_view(start, end, backtest(spec, events, start, end))
 
 
 # --- shadow mode, execution, approval queue ---------------------------------------------------
@@ -297,49 +224,7 @@ def shadow(dataset_id: str, request: ShadowRequest) -> dict:
         run_id = store.save_run(run)
     finally:
         store.close()
-
-    agreed = 0
-    points = []
-    for i, (outcome, stage) in enumerate(run.outcomes, start=1):
-        agreed += outcome.agrees
-        points.append(
-            {
-                "day": outcome.resolved_on,
-                "stage": stage.name.lower(),
-                "agrees": outcome.agrees,
-                "kind": outcome.kind,
-                "agreement_so_far": round(agreed / i, 3),
-            }
-        )
-    return {
-        "run_id": run_id,
-        "from": start,
-        "to": end,
-        "cases": len(run.outcomes),
-        "final_stage": run.final_stage.name.lower(),
-        "changes": [
-            {
-                "day": c.day,
-                "action": c.decision.action,
-                "from": c.decision.current.name.lower(),
-                "to": c.decision.next.name.lower(),
-                "reason": c.decision.reason,
-                "cases": c.decision.n,
-                "agreement": round(c.decision.agreement, 3),
-                "lower_bound": round(c.decision.lower_bound, 3),
-            }
-            for c in run.changes
-        ],
-        "by_stage": {s.name.lower(): v for s, v in run.by_stage().items()},
-        "points": points,
-        "minutes_per_case": minutes,
-        "hours_saved_estimated": round(run.minutes_saved() / 60, 2),
-        "policy": {
-            "min_cases": DEFAULT_POLICY.min_cases,
-            "promote_lower_bound": DEFAULT_POLICY.promote_lower_bound,
-            "time_saved_share": {s.name.lower(): v for s, v in TIME_SAVED_SHARE.items()},
-        },
-    }
+    return shadow_view(run, start, end, minutes, run_id)
 
 
 @app.post("/datasets/{dataset_id}/execute")
@@ -358,18 +243,7 @@ def execute(dataset_id: str, request: ExecuteRequest) -> dict:
         )
     finally:
         store.close()
-    return {
-        "day": request.day,
-        "stage": stage.name.lower(),
-        "proposals": [
-            {"case_id": p.case_id, "rule": p.rule, "updates": p.updates, "email": p.email}
-            for p in result.proposals
-        ],
-        "drafts": len(result.drafts),
-        "queued": result.queued,
-        "ready": len(result.ready),
-        "sheet_written": result.sheet is not None,
-    }
+    return execute_view(request.day, stage.name.lower(), result, result.queued)
 
 
 @app.get("/actions")
@@ -404,25 +278,6 @@ def report(dataset_id: str, request: ReportRequest) -> dict:
 # --- helpers ----------------------------------------------------------------------------------
 
 
-def extract_zip(data: bytes, target: Path) -> None:
-    """Extract only data files, refusing any path that would escape ``target``."""
-    with zipfile.ZipFile(io.BytesIO(data)) as archive:
-        members = [m for m in archive.infolist() if not m.is_dir()]
-        if sum(m.file_size for m in members) > 4 * MAX_UPLOAD_BYTES:
-            raise ValueError("zip expands to more than 200 MB")
-        for member in members:
-            path = PurePosixPath(member.filename.replace("\\", "/"))
-            if path.is_absolute() or ".." in path.parts:
-                raise ValueError(f"unsafe path in zip: {member.filename}")
-            if path.suffix.lower() not in ALLOWED_SUFFIXES:
-                continue
-            out = target.joinpath(*path.parts)
-            out.parent.mkdir(parents=True, exist_ok=True)
-            out.write_bytes(archive.read(member))
-    if not target.exists():
-        raise ValueError("the zip contains no CSV, Excel or JSON files")
-
-
 _year_lock = threading.Lock()
 
 
@@ -443,20 +298,10 @@ def _folder(dataset_id: str) -> Path:
     return folder
 
 
-# The first requests after a cold start arrive together. Without this lock each would read the
-# files and run discovery on its own, multiplying memory on a small instance; with it, one does the
-# work and the others wait for the cached result.
-_compute_lock = threading.RLock()
-
-
-@lru_cache(maxsize=8)
-def _ingest_uncached(folder: str):
-    return ingest_folder(folder)
-
-
-def _ingest(folder: str):
-    with _compute_lock:
-        return _ingest_uncached(folder)
+# Shared, lock-protected caches (see compute.py); the names are kept for tests.
+_ingest_uncached = compute.ingest_uncached
+_ingest = compute.ingest
+_discovery_cached = compute.discovery_cached
 
 
 def _events(dataset_id: str):
@@ -464,44 +309,14 @@ def _events(dataset_id: str):
 
 
 def _summary(dataset_id: str) -> dict:
-    result = _ingest(str(_folder(dataset_id)))
-    events = result.events
-    kinds: dict[str, int] = {}
-    for f in result.files:
-        kinds[f.kind] = kinds.get(f.kind, 0) + 1
-    weekly = []
-    if len(events):
-        week = events["timestamp"].dt.to_period("W-SUN").dt.start_time.dt.date
-        counts = events.groupby([week, events["source"]]).size().unstack(fill_value=0)
-        weekly = [
-            {"week": wk, **{src: int(n) for src, n in row.items()}} for wk, row in counts.iterrows()
-        ]
-    return {
-        "dataset_id": dataset_id,
-        "name": DATASETS.get(dataset_id, f"Upload {dataset_id}"),
-        "files": kinds,
-        "events": len(events),
-        "first_day": events["timestamp"].min().date() if len(events) else None,
-        "last_day": events["timestamp"].max().date() if len(events) else None,
-        "by_source": {k: int(v) for k, v in events["source"].value_counts().items()},
-        "linked_share": round(float((events["case_id"] != "").mean()), 3) if len(events) else 0,
-        "weekly": weekly,
-        "has_ground_truth": (_folder(dataset_id) / "ground_truth").is_dir(),
-        "warnings": result.warnings,
-    }
-
-
-@lru_cache(maxsize=8)
-def _discovery_cached(folder: str, train_days: int):
-    events = _ingest(folder).events
-    split = events["timestamp"].min().date() + timedelta(days=train_days)
-    return discover(events[events["timestamp"].dt.date < split]), split
+    folder = _folder(dataset_id)
+    result = _ingest(str(folder))
+    name = DATASETS.get(dataset_id, f"Upload {dataset_id}")
+    return summary_view(result, folder, dataset_id, name)
 
 
 def _discovery(dataset_id: str, train_days: int):
-    folder = str(_folder(dataset_id))
-    with _compute_lock:
-        return _discovery_cached(folder, train_days)
+    return compute.discovery(str(_folder(dataset_id)), train_days)
 
 
 def _spec(data: dict) -> AgentSpec:
@@ -523,24 +338,6 @@ def _period(spec: AgentSpec, events, start: date | None, end: date | None) -> tu
             raise HTTPException(422, "give 'start', or a spec with source.evidence_period")
         start = date.fromisoformat(period[1]) + timedelta(days=1)
     return start, end or events["timestamp"].max().date()
-
-
-def _step_label(step: str, template_labels: dict[str, str]) -> str:
-    if step.startswith("email.sent:"):
-        return f"email: {template_labels.get(step.split(':', 1)[1], step)}"
-    return step
-
-
-def _event_detail(source: str, payload: dict) -> str:
-    if source == "email":
-        return payload.get("subject", "")
-    if source == "bank":
-        return f"{payload.get('amount', '')} from {payload.get('payer', '')}"
-    if "changes" in payload:
-        return ", ".join(
-            f"{k}: {old or '-'} > {new}" for k, (old, new) in payload["changes"].items()
-        )
-    return "new row"
 
 
 def _db() -> Path:

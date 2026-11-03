@@ -27,6 +27,10 @@ api = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "python-multipart>=0.0.9",
+    "httpx>=0.27",
+    "PyJWT[crypto]>=2.9",
+    "stripe>=11",
+    "cryptography>=43",
 ]
 dev = [
     "pytest>=8",
@@ -51,3 +55,5 @@ select = ["E", "F", "I", "B", "UP"]
 [tool.ruff.lint.per-file-ignores]
 # The data-card template contains Markdown table rows that can't be wrapped.
 "src/shadowcost/synth/write.py" = ["E501"]
+# API tests spell out full request paths.
+"tests/test_saas.py" = ["E501"]

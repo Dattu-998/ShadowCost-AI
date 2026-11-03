@@ -26,6 +26,9 @@ class Stage(IntEnum):
     AUTONOMOUS = 3  # acts alone; outcomes are still audited
 
 
+STAGES_ORDER = [stage.name.lower() for stage in Stage]
+
+
 @dataclass(frozen=True)
 class PromotionPolicy:
     min_cases: int = 30  # cases needed at the current stage before promotion is considered
