@@ -133,7 +133,7 @@ export function Button({
   return (
     <button
       {...props}
-      className={`press inline-flex h-9 items-center justify-center rounded-md px-4 text-[14px] font-semibold disabled:cursor-not-allowed ${styles} ${className}`}
+      className={`press inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-4 text-[14px] font-semibold disabled:cursor-not-allowed ${styles} ${className}`}
     />
   );
 }

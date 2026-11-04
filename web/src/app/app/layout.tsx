@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
-import { Shell } from "@/components/app/Shell";
-import { WorkspaceProvider } from "@/lib/workspace";
+import { AppGate } from "@/components/app/AppGate";
+import { SessionProvider } from "@/lib/session";
 
 export const metadata: Metadata = {
-  title: "ShadowCost · Fernhill Supplies",
+  title: "ShadowCost",
   description: "Discover repeated work, approve agents and watch them earn autonomy in shadow mode.",
+  robots: { index: false },
 };
+
+// The gate holds pages back until the session and workspace load, by design; skip the check
+// that every segment renders instantly on navigation.
+export const instant = false;
 
 export default function AppLayout({ children }: LayoutProps<"/app">) {
   return (
-    <WorkspaceProvider>
-      <Shell>{children}</Shell>
-    </WorkspaceProvider>
+    <SessionProvider>
+      <AppGate>{children}</AppGate>
+    </SessionProvider>
   );
 }

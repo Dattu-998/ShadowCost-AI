@@ -1,0 +1,36 @@
+/** The public price list. Mirrors `PLANS` in src/shadowcost/saas/plans.py; change both together. */
+export const PLANS = [
+  {
+    id: "free",
+    name: "Free",
+    monthly_usd: 0,
+    blurb: "Find your repeated work and trial one agent.",
+    members: 1,
+    datasets: 2,
+    approved_agents: 1 as number | null,
+    connectors: false,
+    cta: "Start free",
+  },
+  {
+    id: "starter",
+    name: "Starter",
+    monthly_usd: 49,
+    blurb: "A small office: Google Sheets and Gmail connected, five agents earning trust.",
+    members: 3,
+    datasets: 5,
+    approved_agents: 5 as number | null,
+    connectors: true,
+    cta: "Start with Starter",
+  },
+  {
+    id: "growth",
+    name: "Growth",
+    monthly_usd: 149,
+    blurb: "A finance team: every workflow, every approver, unlimited agents.",
+    members: 15,
+    datasets: 25,
+    approved_agents: null as number | null,
+    connectors: true,
+    cta: "Start with Growth",
+  },
+];

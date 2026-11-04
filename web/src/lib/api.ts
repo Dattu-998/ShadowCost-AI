@@ -193,6 +193,12 @@ export function useSlowRequests(): boolean {
   );
 }
 
+// The signed-in user's session token, set by SessionProvider; sent with every request.
+let accessToken: string | null = null;
+export function setAccessToken(token: string | null) {
+  accessToken = token;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let marked = false;
   const timer = setTimeout(() => {
@@ -203,7 +209,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     const response = await fetch(`${API_URL}${path}`, {
       ...init,
-      headers: init?.body ? { "Content-Type": "application/json" } : undefined,
+      headers: {
+        ...(typeof init?.body === "string" ? { "Content-Type": "application/json" } : {}),
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
     });
     if (!response.ok) {
       let detail = response.statusText;
@@ -229,11 +238,86 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const get = <T>(path: string) => request<T>(path);
-export const post = <T>(path: string, body: unknown) =>
+export const post = <T>(path: string, body: unknown = {}) =>
   request<T>(path, { method: "POST", body: JSON.stringify(body) });
+export const patch = <T>(path: string, body: unknown) =>
+  request<T>(path, { method: "PATCH", body: JSON.stringify(body) });
+export const del = <T>(path: string) => request<T>(path, { method: "DELETE" });
+export const upload = <T>(path: string, form: FormData) => request<T>(path, { method: "POST", body: form });
 
 /** SWR fetcher: a string key is a GET; ["POST", path, body] is a POST. */
 export function fetcher<T>(key: string | readonly [string, string, unknown]): Promise<T> {
   if (typeof key === "string") return get<T>(key);
   return post<T>(key[1], key[2]);
 }
+
+// --- signed-in product -----------------------------------------------------------------------
+
+export type Role = "owner" | "admin" | "approver" | "viewer";
+export const ROLE_RANK: Record<Role, number> = { viewer: 0, approver: 1, admin: 2, owner: 3 };
+export type Features = { billing: boolean; email: boolean; google: boolean; llm_drafting: boolean };
+
+export type Me = {
+  user: { id: string; email: string };
+  workspaces: { id: string; name: string; role: Role; plan: string }[];
+  features: Features;
+};
+
+export type OrgDetail = {
+  id: string;
+  name: string;
+  role: Role;
+  plan: "free" | "starter" | "growth";
+  plan_name: string;
+  subscription_status: string | null;
+  current_period_end: string | null;
+  limits: { members: number; datasets: number; approved_agents: number | null; connectors: boolean };
+  usage: { members: number; datasets: number; approved_agents: number };
+  features: Features;
+};
+
+export type Plan = {
+  id: string;
+  name: string;
+  monthly_usd: number;
+  members: number;
+  datasets: number;
+  approved_agents: number | null;
+  connectors: boolean;
+  blurb: string;
+};
+
+export type DatasetRow = {
+  id: string;
+  name: string;
+  source: "upload" | "google";
+  status: "processing" | "ready" | "error";
+  error: string | null;
+  events: number | null;
+  first_day: string | null;
+  last_day: string | null;
+  sample: boolean;
+  created_at: string;
+};
+
+export type Members = {
+  members: { user_id: string; email: string; role: Role; created_at: string }[];
+  invitations: { id: string; email: string; role: Role; created_at: string; expires_at: string }[];
+};
+
+export type Connection = {
+  provider: "google";
+  account_email: string | null;
+  settings: { spreadsheet_id?: string; sheet_range?: string; gmail_query?: string };
+  last_synced_at: string | null;
+  last_error: string | null;
+};
+
+export type Notification = {
+  id: number;
+  kind: string;
+  subject: string;
+  recipients: string[];
+  delivered: boolean;
+  created_at: string;
+};

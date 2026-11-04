@@ -1,6 +1,8 @@
 # ShadowCost
 
-**Live:** [shadow-cost-ai.vercel.app](https://shadow-cost-ai.vercel.app) (site and app) ·
+**Live:** [shadow-cost-ai.vercel.app](https://shadow-cost-ai.vercel.app) (site) ·
+[demo](https://shadow-cost-ai.vercel.app/demo) (no account) ·
+[start free](https://shadow-cost-ai.vercel.app/signup) ·
 [API docs](https://shadowcost-api.onrender.com/docs) · The API runs on Render's free plan and
 sleeps when idle, so the first visit can take about a minute to wake it.
 
@@ -11,6 +13,9 @@ mode against what the person actually did before it gets any autonomy.**
 > Enterprise platforms such as Celonis and UiPath are moving toward
 > discover-and-automate. ShadowCost targets the gap for smaller companies:
 > agents that prove themselves against real human work before they get autonomy.
+
+It runs as a multi-tenant SaaS: self-serve sign-up and workspaces, Free / Starter / Growth plans
+on Stripe, team roles with email notifications, and a Google Sheets and Gmail connector.
 
 ```
 upload → discover → recommend → generate spec → test → approve → shadow → promote → execute → report
@@ -117,12 +122,16 @@ list workflows, backtest, approve, shadow and report. Its docs are at `/docs`.
 ## Deploy
 
 The API deploys to Render (`render.yaml`) and the web app to Vercel (root directory `web`).
-See [docs/deploy.md](docs/deploy.md).
+Accounts and data live in Supabase, billing runs on Stripe (test mode), email on Resend, and the
+Google Sheets and Gmail connector syncs daily from a GitHub Actions schedule. See
+[docs/deploy.md](docs/deploy.md).
 
 ## Repository layout
 
 ```
 src/shadowcost/   library: synth, ingest, discover, recommend, agent, execute, report, api
+src/shadowcost/saas/  hosted product: auth, workspaces, plans, billing, connectors, email
+supabase/         database migrations (row-level security on every table)
 web/              Next.js landing page and app (Vercel)
 scripts/          landing-page data export
 specs/            agent specs drafted by the LLM for the sample, with backtest results

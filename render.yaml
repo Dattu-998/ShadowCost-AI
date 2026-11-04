@@ -17,3 +17,30 @@ services:
       # Your Vercel URL, e.g. https://shadowcost.vercel.app (comma-separate several).
       - key: SHADOWCOST_CORS_ORIGINS
         sync: false
+      # --- the hosted product (each integration is optional; see docs/deploy.md) ---
+      - key: SITE_URL
+        value: https://shadow-cost-ai.vercel.app
+      - key: API_URL
+        value: https://shadowcost-api.onrender.com
+      - key: SUPABASE_URL
+        value: https://jyixkprzmihvuanprfdm.supabase.co
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: TOKEN_ENCRYPTION_KEY
+        generateValue: true
+      - key: CRON_SECRET
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false

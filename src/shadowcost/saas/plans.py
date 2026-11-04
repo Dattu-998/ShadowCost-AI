@@ -77,6 +77,8 @@ def require_room(db: Database, org: dict, resource: str) -> None:
     limit = getattr(plan, resource)
     if limit is not None and usage(db, org["id"])[resource] >= limit:
         label = resource.replace("_", " ")
+        if limit == 1:
+            label = {"members": "member", "datasets": "dataset"}.get(resource, label[:-1])
         raise HTTPException(
             402, f"The {plan.name} plan allows {limit} {label}. Upgrade to add more."
         )

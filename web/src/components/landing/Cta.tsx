@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Reveal } from "@/lib/reveal";
@@ -26,7 +27,7 @@ export function Cta() {
     } catch {
       // Storage can be unavailable (private mode); the demo then uses its defaults.
     }
-    router.push("/app");
+    router.push("/demo");
   }
 
   return (
@@ -97,6 +98,12 @@ export function Cta() {
             >
               Open the demo
             </button>
+            <p className="mt-4 text-center text-small text-muted">
+              Ready for your own files?{" "}
+              <Link href="/signup" className="font-semibold text-ink underline-offset-4 hover:underline">
+                Start free
+              </Link>
+            </p>
           </form>
         </Reveal>
       </div>

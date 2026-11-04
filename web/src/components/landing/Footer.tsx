@@ -14,7 +14,7 @@ export function Footer() {
         <span className="display text-[14vw] md:text-[9vw]">ShadowCost</span>
       </Link>
       <Link
-        href="/app"
+        href="/demo"
         className="press group col-span-2 flex h-40 flex-col justify-between bg-paper p-5 hover:bg-white md:order-6 md:col-span-4 md:h-80 md:p-6"
       >
         <span className="text-lead font-semibold leading-tight">Open the demo</span>
@@ -34,6 +34,18 @@ export function Footer() {
         className="flex min-h-40 flex-col justify-between bg-sage p-5 md:order-2 md:col-span-3 md:min-h-[220px] md:p-6"
       >
         <ul className="space-y-1.5 text-body">
+          {[
+            ["/pricing", "Pricing"],
+            ["/security", "Security"],
+            ["/docs", "Docs"],
+            ["/contact", "Book a demo"],
+          ].map(([href, label]) => (
+            <li key={href}>
+              <Link className="hover:underline" href={href}>
+                {label}
+              </Link>
+            </li>
+          ))}
           <li>
             <a className="hover:underline" href={REPO}>
               Source code
@@ -84,6 +96,15 @@ export function Footer() {
             CC BY 4.0
           </a>
           ; both via Wikimedia Commons.
+        </p>
+        <p className="text-small">
+          <Link className="underline" href="/terms">
+            Terms
+          </Link>{" "}
+          ·{" "}
+          <Link className="underline" href="/privacy">
+            Privacy
+          </Link>
         </p>
       </div>
     </footer>

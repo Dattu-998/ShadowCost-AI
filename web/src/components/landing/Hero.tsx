@@ -32,12 +32,23 @@ export function Hero() {
         <Link href="/" className="text-lead font-semibold tracking-tight">
           ShadowCost
         </Link>
-        <Link
-          href="/app"
-          className="press bg-olive px-4 py-2.5 text-body font-semibold text-paper hover:bg-ink md:px-5 md:py-3"
-        >
-          Open the demo
-        </Link>
+        <div className="flex items-center gap-4 md:gap-7">
+          <Link href="/demo" className="hidden text-body font-semibold hover:underline sm:inline">
+            Demo
+          </Link>
+          <Link href="/pricing" className="hidden text-body font-semibold hover:underline sm:inline">
+            Pricing
+          </Link>
+          <Link href="/login" className="text-body font-semibold hover:underline">
+            Sign in
+          </Link>
+          <Link
+            href="/signup"
+            className="press bg-olive px-4 py-2.5 text-body font-semibold text-paper hover:bg-ink md:px-5 md:py-3"
+          >
+            Start free
+          </Link>
+        </div>
       </nav>
 
       <p className="fade-after-lines absolute inset-x-4 bottom-8 max-w-[34ch] text-lead leading-snug md:inset-x-0 md:bottom-10 md:mx-auto md:max-w-[46ch] md:text-center">
