@@ -9,7 +9,7 @@ import { fmt, STAGE_LABEL } from "./ui";
  * faint gridlines, no y-axis line, values in the tooltip rather than on every mark.
  */
 
-const OLIVE = "#2c3620";
+const OLIVE = "#1f3527";
 const NEUTRAL = ["#b3bcc3", "#d9dee2"];
 
 /** Events per week, stacked: the company's own spreadsheet work in olive, the outside world grey. */

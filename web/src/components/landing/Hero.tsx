@@ -6,17 +6,13 @@ import data from "@/data/landing.json";
 import { useScrollProgress } from "@/lib/scroll";
 
 /**
- * Waterline headline (dealt). Two flat fields meet at half height: paper above, slate below.
- * The product's name crosses the seam in the olive of autonomy, its second line half in the
- * light and half below the waterline, as if the work were still being done out of sight.
+ * Waterline headline (dealt). Two flat fields meet at half height: ivory above, deep forest
+ * below, and the waterline runs between the two words of the name. SHADOW stays on the surface
+ * in forest; COST sits under the water in clay, because the cost of repeated work is the part
+ * nobody sees. Each word takes the ink of its own field, so nothing is clipped or drawn twice.
  *
  * Below the waterline that work really moves: the sample company's invoices going out and the
- * three workflows ShadowCost found, at their measured rates. Scrolling away lifts the paper off
- * the seam, so the slate floods up into the next chapter.
- *
- * The blueprint draws the headline twice, each copy clipped to its field so the ink can change
- * at the seam. Olive and ink are nearly the same darkness here, so one copy carries the effect
- * and the headline stays whole for readers and for the inspector.
+ * three workflows ShadowCost found, at their measured rates.
  */
 const LINES = ["SHADOW", "COST"];
 const money = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
@@ -51,23 +47,20 @@ export function Hero() {
   return (
     <header
       ref={ref}
-      className="relative h-[100svh] min-h-[560px] overflow-hidden bg-slate [--hero-size:15.5vw] [--seam-px:max(46svh,258px)] md:[--hero-size:clamp(72px,9vw,140px)] md:[--seam-px:max(50svh,280px)]"
+      className="relative h-[100svh] min-h-[560px] overflow-hidden bg-olive [--hero-size:15.5vw] [--seam-px:max(46svh,258px)] md:[--hero-size:clamp(72px,9vw,140px)] md:[--seam-px:max(50svh,280px)]"
     >
-      <div aria-hidden className="hero-paper absolute inset-x-0 top-0 h-[var(--seam-px)] bg-paper" />
-
-      <div className="hero-rise absolute inset-x-0 top-[calc(var(--seam-px)-1.29*var(--hero-size))]">
-        <h1 className="display text-center text-olive [font-size:var(--hero-size)] [line-height:0.86]">
-          {LINES.map((line) => (
-            <span key={line} className="line-mask">
-              <span>{line}</span>
-            </span>
-          ))}
-        </h1>
-      </div>
-
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[var(--seam-px)] bg-paper" />
+      <h1 className="display absolute inset-x-0 top-[calc(var(--seam-px)-0.98*var(--hero-size))] text-center [font-size:var(--hero-size)] [line-height:0.86]">
+        <span className="line-mask text-olive">
+          <span>{LINES[0]}</span>
+        </span>
+        <span className="line-mask mt-[0.1em] text-blush">
+          <span>{LINES[1]}</span>
+        </span>
+      </h1>
       <div
         aria-hidden
-        className="flow-band fade-after-lines absolute inset-x-4 top-[calc(var(--seam-px)+0.62*var(--hero-size)+5svh)] space-y-2 overflow-hidden text-ink md:inset-x-7 [@media(max-height:699px)]:hidden"
+        className="flow-band hero-drift fade-after-lines absolute inset-x-4 top-[calc(var(--seam-px)+1.05*var(--hero-size)+4svh)] space-y-2 overflow-hidden text-paper md:inset-x-7 [@media(max-height:699px)]:hidden"
       >
         <div className="text-lead font-semibold">
           <Flow items={SENT} time="90s" />
@@ -103,7 +96,7 @@ export function Hero() {
         </div>
       </nav>
 
-      <p className="fade-after-lines absolute inset-x-4 bottom-8 max-w-[34ch] text-lead leading-snug md:inset-x-0 md:bottom-10 md:mx-auto md:max-w-[46ch] md:text-center">
+      <p className="fade-after-lines absolute inset-x-4 bottom-8 max-w-[34ch] text-lead leading-snug text-paper md:inset-x-0 md:bottom-10 md:mx-auto md:max-w-[46ch] md:text-center">
         It finds the repetitive invoice, payment and email work in a small company, and hands it to
         an agent only after the agent has matched the person, case by case.
       </p>

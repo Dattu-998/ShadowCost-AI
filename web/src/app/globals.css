@@ -2,9 +2,11 @@
 
 /*
  * Two runs, one identity (taste skill):
- * - The landing page: "Colour chapters" (seed 708898212). Slate, blush, sage and olive are the four
- *   stages an agent climbs (watching, drafting, asking, acting alone). Olive, the colour of acting
- *   alone, is the only colour that acts: every button.
+ * - The landing page: "Colour chapters" (seed 708898212), recoloured to one warm, earthy family so
+ *   the chapters sit together: stone, clay and sage are the first three stages an agent climbs
+ *   (watching, drafting, asking) and deep forest is acting alone. Forest is the only colour that
+ *   acts: every button. (The token names keep the dealt roles: slate = stone, blush = clay,
+ *   olive = forest.)
  * - The app: "Framed sheet" (seed 1487665926). A slate-tinted L-frame, work on a white sheet; colour
  *   only on data, with olive on the main series and the four stage colours only on the ladder.
  * One typeface: Schibsted Grotesk.
@@ -13,13 +15,13 @@
   --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
 
   /* chapters */
-  --color-paper: #e3e2da;
-  --color-slate: #a6b3bc;
-  --color-blush: #d6c4b8;
-  --color-sage: #b7c8be;
-  --color-olive: #2c3620;
-  --color-ink: #1c1c1c;
-  --color-ink-soft: #38424a;
+  --color-paper: #ecebe6;
+  --color-slate: #cbc3b4;
+  --color-blush: #e0bfa0;
+  --color-sage: #b4c3a3;
+  --color-olive: #1f3527;
+  --color-ink: #161a17;
+  --color-ink-soft: #3b423c;
 
   /* app: framed sheet */
   --color-frame: #edf0f2;
@@ -115,15 +117,10 @@ body {
   }
 }
 
-/* Hero, scroll-linked: as the first screen leaves, the paper lifts off the waterline and the
-   name rises after it, so the slate below floods up into the next chapter. --p is 0 to 1. */
-.hero-paper {
-  transform-origin: top;
-  transform: scaleY(calc(1 - var(--p, 0) * 0.85));
-}
-.hero-rise {
-  transform: translateY(calc(var(--p, 0) * -38svh));
-  opacity: calc(1 - var(--p, 0) * 1.4);
+/* Hero, scroll-linked: as the first screen scrolls away, the band of cases under the water drifts
+   up a little faster than the page. --p is 0 to 1. */
+.hero-drift {
+  transform: translateY(calc(var(--p, 0) * -12svh));
 }
 
 /* Under the waterline: the cases the agents work through, moving out of sight. */
@@ -344,10 +341,8 @@ body {
   .ladder-fill {
     animation: none;
   }
-  .hero-paper,
-  .hero-rise {
+  .hero-drift {
     transform: none;
-    opacity: 1;
   }
   .js .reveal:not(.is-in),
   .js .grow:not(.is-in) .bar,

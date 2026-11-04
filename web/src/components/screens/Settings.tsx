@@ -273,7 +273,7 @@ function TeamTab() {
                         value={r}
                         checked={role === r}
                         onChange={() => setRole(r)}
-                        className="mt-1 accent-[#2c3620]"
+                        className="mt-1 accent-[#1f3527]"
                       />
                       <span>
                         <span className="capitalize">{r}</span>

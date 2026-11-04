@@ -24,7 +24,7 @@ function Tile({ name, fact, delay }: { name: string; fact: string; delay: number
   return (
     <Reveal
       delay={delay}
-      className="reveal flex aspect-[3/2] flex-col justify-between bg-[#c4d3ca] p-5 md:p-6"
+      className="reveal flex aspect-[3/2] flex-col justify-between bg-[#c6d2b8] p-5 md:p-6"
     >
       <p className="text-lead font-extrabold leading-none tracking-tight">{name}</p>
       <p className="text-body leading-snug">{fact}</p>
@@ -50,7 +50,7 @@ function Picture({
   drift?: boolean;
 }) {
   return (
-    <Reveal as="figure" className="reveal-open col-span-2 flex flex-col bg-[#c4d3ca]">
+    <Reveal as="figure" className="reveal-open col-span-2 flex flex-col bg-[#c6d2b8]">
       <div className="relative aspect-[3/1.45] overflow-clip md:aspect-auto md:flex-1">
         <Image
           src={src}

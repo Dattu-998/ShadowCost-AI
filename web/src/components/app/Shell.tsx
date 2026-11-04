@@ -31,10 +31,10 @@ export function Mark({ className = "h-5 w-5" }: { className?: string }) {
   // The ladder as the product's mark: four rising steps in the four stage colours.
   return (
     <svg viewBox="0 0 20 20" className={className} aria-hidden>
-      <rect x="1" y="13" width="3.6" height="6" rx="1" fill="#a6b3bc" />
-      <rect x="5.8" y="9.5" width="3.6" height="9.5" rx="1" fill="#d6c4b8" />
-      <rect x="10.6" y="6" width="3.6" height="13" rx="1" fill="#b7c8be" />
-      <rect x="15.4" y="2" width="3.6" height="17" rx="1" fill="#2c3620" />
+      <rect x="1" y="13" width="3.6" height="6" rx="1" fill="#cbc3b4" />
+      <rect x="5.8" y="9.5" width="3.6" height="9.5" rx="1" fill="#e0bfa0" />
+      <rect x="10.6" y="6" width="3.6" height="13" rx="1" fill="#b4c3a3" />
+      <rect x="15.4" y="2" width="3.6" height="17" rx="1" fill="#1f3527" />
     </svg>
   );
 }

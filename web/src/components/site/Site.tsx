@@ -79,7 +79,7 @@ export function SitePage({
 /** Long-form reading column for docs and legal pages. */
 export function Prose({ children }: { children: ReactNode }) {
   return (
-    <div className="max-w-[68ch] text-body leading-relaxed [&_a]:underline [&_code]:rounded [&_code]:bg-[#d8d7ce] [&_code]:px-1 [&_code]:text-[0.9em] [&_h2]:mt-12 [&_h2]:text-lead [&_h2]:font-semibold [&_h2]:leading-tight [&_h3]:mt-8 [&_h3]:font-semibold [&_li]:mt-1.5 [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-4 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6">
+    <div className="max-w-[68ch] text-body leading-relaxed [&_a]:underline [&_code]:rounded [&_code]:bg-[#e4dccd] [&_code]:px-1 [&_code]:text-[0.9em] [&_h2]:mt-12 [&_h2]:text-lead [&_h2]:font-semibold [&_h2]:leading-tight [&_h3]:mt-8 [&_h3]:font-semibold [&_li]:mt-1.5 [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-4 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6">
       {children}
     </div>
   );
@@ -88,7 +88,7 @@ export function Prose({ children }: { children: ReactNode }) {
 /** Legal pages say plainly that they are a starting draft, not reviewed terms. */
 export function DraftNotice() {
   return (
-    <p className="mb-10 max-w-[68ch] border-l-4 border-olive bg-[#d8d7ce] px-4 py-3 text-small">
+    <p className="mb-10 max-w-[68ch] border-l-4 border-olive bg-[#e4dccd] px-4 py-3 text-small">
       Draft for an early product: written in plain language and not yet reviewed by a lawyer. Questions go to the
       address on the <Link href="/contact" className="underline">contact page</Link>.
     </p>

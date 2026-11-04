@@ -49,7 +49,7 @@ export default function PrivacyPage() {
             </thead>
             <tbody>
               {PROCESSORS.map(([name, use, where]) => (
-                <tr key={name} className="border-b border-[#cfcdc3]">
+                <tr key={name} className="border-b border-[#d9d0c1]">
                   <td className="py-2 pr-4 font-semibold">{name}</td>
                   <td className="py-2 pr-4">{use}</td>
                   <td className="py-2">{where}</td>

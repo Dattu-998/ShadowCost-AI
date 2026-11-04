@@ -18,7 +18,7 @@ const monthName = (ym: string, month: "long" | "short" = "long") =>
     ...(month === "long" ? { year: "numeric" } : {}),
     timeZone: "UTC",
   });
-const BAR = "#b9a698";
+const BAR = "#c9a07f";
 const GAP = 1.4; // percent of the chart width between bars
 const height = (hours: number) => Math.max((hours / max) * 86, 0.6);
 

@@ -101,7 +101,7 @@ export default function PricingPage() {
             </thead>
             <tbody>
               {ROWS.map((row, i) => (
-                <Reveal as="tr" key={row.label} delay={i * 50} className="reveal border-b border-[#cfcdc3]">
+                <Reveal as="tr" key={row.label} delay={i * 50} className="reveal border-b border-[#d9d0c1]">
                   <th scope="row" className="py-3 pr-4 text-left font-normal">
                     {row.label}
                   </th>
