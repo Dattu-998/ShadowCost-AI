@@ -106,7 +106,7 @@ export function Climb() {
                 />
               ))}
             </div>
-            <dl className="tabular mt-5 grid grid-cols-3 gap-3">
+            <dl className="mt-5 grid grid-cols-3 gap-3">
               <div>
                 <dt className="text-small text-muted">Cases</dt>
                 <dd className="text-lead font-semibold">

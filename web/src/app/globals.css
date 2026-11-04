@@ -58,8 +58,10 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* Schibsted's tabular figures set the decimal point and the comma a full figure wide ("7 . 0"),
+   so number columns keep its proportional lining figures and align by their right edge. */
 .tabular {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums proportional-nums;
 }
 
 :focus-visible {

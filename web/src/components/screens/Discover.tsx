@@ -51,12 +51,12 @@ export default function DiscoverPage() {
           {isLoading && <Loading rows={3} />}
           {data && workflows.length === 0 && <Empty>No work repeats often enough in this period.</Empty>}
           {workflows.length > 0 && (
-            <table className="w-full text-[14px]">
+            <table className="w-full table-fixed text-[14px]">
               <thead>
                 <tr className="text-left text-[12px] text-muted">
                   <th className="pb-2 font-normal">Work</th>
-                  <th className="pb-2 text-right font-normal">Per month</th>
-                  <th className="pb-2 text-right font-normal">Hours</th>
+                  <th className="w-[84px] pb-2 text-right font-normal">Per month</th>
+                  <th className="w-[64px] pb-2 text-right font-normal">Hours</th>
                 </tr>
               </thead>
               <tbody>
@@ -70,7 +70,7 @@ export default function DiscoverPage() {
                     <td className="py-1 pr-3">
                       <button
                         onClick={() => setSelected(i)}
-                        className={`relative w-full overflow-hidden rounded-lg px-3 py-2.5 text-left ${i === selected ? "outline outline-2 outline-ink" : ""}`}
+                        className={`relative w-full overflow-hidden rounded-lg px-3 py-2.5 text-left ${i === selected ? "outline outline-2 -outline-offset-2 outline-ink" : ""}`}
                       >
                         <span
                           aria-hidden

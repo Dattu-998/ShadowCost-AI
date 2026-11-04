@@ -37,7 +37,7 @@ export function CountUp({ value, digits = 0, duration = 1400 }: { value: number;
   }, [value, duration]);
 
   return (
-    <span ref={ref} className="tabular">
+    <span ref={ref}>
       {shown.toFixed(digits)}
     </span>
   );

@@ -4,7 +4,7 @@ import { Reveal } from "@/lib/reveal";
 
 /**
  * Bars standing on the edge (dealt). Hours saved each month over the simulated year, measured
- * against the minutes the office manager actually spent. The olive bar is July, the month the
+ * against the minutes the office manager actually spent. The dark green bar is July, the month the
  * invoice agent first acted alone; every other bar is one tone two steps from the field.
  */
 const months = data.monthly_hours_saved;
@@ -36,7 +36,7 @@ export function Stats() {
         <Reveal as="p" delay={140} className="reveal mt-3 max-w-[52ch] text-body leading-relaxed">
           Counted from the minutes the office manager really spent on the cases the agents took
           over, month by month. The estimate from stated assumptions was 40.9 h; the measurement
-          came in higher. The olive bar is July, when the invoice agent first acted alone.
+          came in higher. The dark green bar is July, when the invoice agent first acted alone.
         </Reveal>
       </div>
 
