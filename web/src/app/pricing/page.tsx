@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SitePage } from "@/components/site/Site";
+import { Reveal } from "@/lib/reveal";
 import { PLANS } from "@/data/plans";
 
 export const metadata: Metadata = {
@@ -42,16 +43,17 @@ const FAQ = [
 export default function PricingPage() {
   return (
     <SitePage
-      eyebrow="Pricing"
       band="sage"
       title="Pay once the agents are earning"
       line="Find your repeated work for free. Pay when you want more of it handed over."
     >
       <div className="grid gap-2 md:grid-cols-3">
-        {PLANS.map((p) => (
-          <section
+        {PLANS.map((p, i) => (
+          <Reveal
+            as="section"
             key={p.id}
-            className={`flex flex-col p-6 md:p-8 ${p.id === "starter" ? "bg-olive text-paper" : "bg-[#eceae3]"}`}
+            delay={i * 90}
+            className={`reveal flex flex-col p-6 md:p-8 ${p.id === "starter" ? "bg-olive text-paper" : p.id === "free" ? "bg-slate" : "bg-blush"}`}
           >
             <h2 className="text-lead font-semibold">{p.name}</h2>
             <p className="mt-6">
@@ -71,7 +73,7 @@ export default function PricingPage() {
             >
               {p.cta}
             </Link>
-          </section>
+          </Reveal>
         ))}
       </div>
       <p className="mt-4 text-small">
@@ -83,32 +85,32 @@ export default function PricingPage() {
         <h2 id="compare" className="text-lead font-semibold">
           Compare plans
         </h2>
-        <div className="mt-6 overflow-x-auto">
-          <table className="w-full min-w-[620px] text-body">
+        <div className="mt-6">
+          <table className="w-full text-small md:text-body">
             <thead>
               <tr className="border-b-2 border-ink text-left">
                 <th className="py-3 pr-4 font-normal">
                   <span className="sr-only">Feature</span>
                 </th>
                 {PLANS.map((p) => (
-                  <th key={p.id} className="w-[18%] py-3 font-semibold">
+                  <th key={p.id} className="w-[18%] py-3 pr-2 font-semibold">
                     {p.name}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {ROWS.map((row) => (
-                <tr key={row.label} className="border-b border-[#cfcdc3]">
+              {ROWS.map((row, i) => (
+                <Reveal as="tr" key={row.label} delay={i * 50} className="reveal border-b border-[#cfcdc3]">
                   <th scope="row" className="py-3 pr-4 text-left font-normal">
                     {row.label}
                   </th>
                   {PLANS.map((p) => (
-                    <td key={p.id} className="tabular py-3">
+                    <td key={p.id} className="tabular py-3 pr-2">
                       {row.value(p)}
                     </td>
                   ))}
-                </tr>
+                </Reveal>
               ))}
             </tbody>
           </table>
@@ -120,11 +122,11 @@ export default function PricingPage() {
           Questions before you start
         </h2>
         <dl className="space-y-8 md:col-span-7 md:col-start-6">
-          {FAQ.map(([q, a]) => (
-            <div key={q}>
+          {FAQ.map(([q, a], i) => (
+            <Reveal key={q} delay={i * 80} className="reveal">
               <dt className="text-body font-semibold">{q}</dt>
-              <dd className="mt-2 max-w-[60ch] text-body leading-relaxed">{a}</dd>
-            </div>
+              <dd className="mt-2 text-body leading-relaxed">{a}</dd>
+            </Reveal>
           ))}
         </dl>
       </section>

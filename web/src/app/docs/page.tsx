@@ -24,9 +24,8 @@ const CONTENTS = [
 export default function DocsPage() {
   return (
     <SitePage
-      eyebrow="Docs"
       band="blush"
-      title="From a folder of files to an agent you trust"
+      title="Files in, trusted agents out"
       line="Everything a new workspace needs, in the order you'll need it."
     >
       <div className="grid gap-10 md:grid-cols-12">

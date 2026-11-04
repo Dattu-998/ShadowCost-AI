@@ -153,7 +153,7 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               href={href}
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
-              className={`flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-[14px] ${active ? "bg-[#dde3e7] font-semibold text-ink" : "text-[#4f5962] hover:bg-[#e4e9ec] hover:text-ink"}`}
+              className={`flex h-8 items-center gap-2.5 rounded-lg px-2.5 text-[14px] transition-colors duration-150 ${active ? "bg-[#dde3e7] font-semibold text-ink" : "text-[#4f5962] hover:bg-[#e4e9ec] hover:text-ink"}`}
             >
               <Icon d={item.icon} />
               {item.label}
@@ -253,7 +253,9 @@ export function Shell({ children }: { children: ReactNode }) {
       </header>
 
       <main className="bg-sheet md:mb-2 md:mr-2 md:overflow-y-auto md:rounded-2xl md:border md:border-edge">
-        <div className="mx-auto max-w-[1360px] p-4 md:p-6">{children}</div>
+        <div key={pathname} className="screen-in mx-auto max-w-[1360px] p-4 md:p-6">
+          {children}
+        </div>
       </main>
 
       {open && (

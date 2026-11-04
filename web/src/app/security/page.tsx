@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SitePage } from "@/components/site/Site";
+import { Reveal } from "@/lib/reveal";
 
 export const metadata: Metadata = {
   title: "Security · ShadowCost",
@@ -56,23 +57,22 @@ const SECTIONS = [
 export default function SecurityPage() {
   return (
     <SitePage
-      eyebrow="Security"
       band="slate"
       title="Built to be trusted slowly"
       line="ShadowCost is the agent that asks first. The platform underneath is built the same way."
     >
       <div className="grid gap-x-6 gap-y-14 md:grid-cols-2">
-        {SECTIONS.map((s) => (
-          <section key={s.title}>
+        {SECTIONS.map((s, i) => (
+          <Reveal as="section" key={s.title} delay={(i % 2) * 90} className="reveal">
             <h2 className="text-lead font-semibold leading-tight">{s.title}</h2>
-            <ul className="mt-5 space-y-3 text-body leading-relaxed">
+            <ul className="mt-5 space-y-4 text-body leading-relaxed">
               {s.points.map((p) => (
-                <li key={p} className="max-w-[56ch] border-t border-[#cfcdc3] pt-3">
+                <li key={p} className="max-w-[56ch]">
                   {p}
                 </li>
               ))}
             </ul>
-          </section>
+          </Reveal>
         ))}
       </div>
       <p className="mt-16 max-w-[60ch] text-small">

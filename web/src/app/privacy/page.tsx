@@ -18,7 +18,7 @@ const PROCESSORS = [
 
 export default function PrivacyPage() {
   return (
-    <SitePage eyebrow="Privacy notice" band="paper" title="Privacy" line="Last updated 3 November 2026.">
+    <SitePage band="paper" title="Privacy" line="Last updated 3 November 2026.">
       <DraftNotice />
       <Prose>
         <h2 className="!mt-0">What we collect</h2>

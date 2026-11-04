@@ -50,8 +50,8 @@ function Picture({
   drift?: boolean;
 }) {
   return (
-    <Reveal as="figure" className="reveal col-span-2 flex flex-col bg-[#c4d3ca]">
-      <div className="relative aspect-[3/1.45] overflow-hidden md:aspect-auto md:flex-1">
+    <Reveal as="figure" className="reveal-open col-span-2 flex flex-col bg-[#c4d3ca]">
+      <div className="relative aspect-[3/1.45] overflow-clip md:aspect-auto md:flex-1">
         <Image
           src={src}
           alt={alt}
@@ -73,7 +73,12 @@ export function Proof() {
       <div className="grid grid-cols-2 gap-1.5 md:grid-cols-4 md:gap-2">
         <Reveal className="reveal col-span-2 flex min-h-[220px] flex-col justify-between bg-olive p-6 text-paper">
           <h2 id="proof-title" className="display text-head">
-            The files you already have
+            <Reveal as="span" className="reveal-mask block" delay={120}>
+              <span>The files you</span>
+            </Reveal>
+            <Reveal as="span" className="reveal-mask block" delay={210}>
+              <span>already have</span>
+            </Reveal>
           </h2>
           <p className="mt-6 max-w-[46ch] text-body leading-snug">
             {data.company} hands over {s.days} days of ordinary files. ShadowCost reads them from

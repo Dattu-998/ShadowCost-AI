@@ -1,3 +1,4 @@
+import { Climb } from "@/components/landing/Climb";
 import { Cta } from "@/components/landing/Cta";
 import { Footer } from "@/components/landing/Footer";
 import { Hero } from "@/components/landing/Hero";
@@ -12,6 +13,7 @@ export default function Home() {
       <Hero />
       <main>
         <Showcase />
+        <Climb />
         <Stages />
         <Proof />
         <Stats />

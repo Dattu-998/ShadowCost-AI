@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <SitePage eyebrow="Terms of service" band="paper" title="Terms" line="Last updated 3 November 2026.">
+    <SitePage band="paper" title="Terms" line="Last updated 3 November 2026.">
       <DraftNotice />
       <Prose>
         <h2 className="!mt-0">The service</h2>

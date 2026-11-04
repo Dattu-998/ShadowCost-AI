@@ -172,7 +172,14 @@ export function Ladder({ stage, approved = true }: { stage: Stage | null; approv
     >
       {STAGES.map((s, i) => (
         <div key={s} className="min-w-0">
-          <div className={`h-2 rounded-full ${approved && i <= reached ? STAGE_FILL[s] : "bg-rule"}`} />
+          <div className="h-2 overflow-hidden rounded-full bg-rule">
+            {approved && i <= reached && (
+              <div
+                className={`ladder-fill h-full ${STAGE_FILL[s]}`}
+                style={{ ["--delay" as string]: `${i * 140}ms` }}
+              />
+            )}
+          </div>
           <p
             className={`mt-1.5 truncate text-[12px] ${approved && i === reached ? "font-semibold text-ink" : "text-muted"}`}
           >

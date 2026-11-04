@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Footer } from "@/components/landing/Footer";
+import { Reveal } from "@/lib/reveal";
 
 /*
  * The sales pages (pricing, security, docs, legal, contact) share the landing page's paper and
@@ -23,11 +24,11 @@ export function SiteHeader() {
       </Link>
       <div className="flex items-center gap-4 md:gap-7">
         {NAV.map(([href, label]) => (
-          <Link key={href} href={href} className="hidden text-body font-semibold hover:underline md:inline">
+          <Link key={href} href={href} className="draw-link hidden text-body font-semibold md:inline">
             {label}
           </Link>
         ))}
-        <Link href="/login" className="text-body font-semibold hover:underline">
+        <Link href="/login" className="draw-link text-body font-semibold">
           Sign in
         </Link>
         <Link
@@ -44,13 +45,11 @@ export function SiteHeader() {
 const BAND = { slate: "bg-slate", blush: "bg-blush", sage: "bg-sage", paper: "bg-paper" } as const;
 
 export function SitePage({
-  eyebrow,
   title,
   line,
   band = "sage",
   children,
 }: {
-  eyebrow: string;
   title: ReactNode;
   line?: ReactNode;
   band?: keyof typeof BAND;
@@ -61,12 +60,17 @@ export function SitePage({
       <header className={BAND[band]}>
         <SiteHeader />
         <div className="px-4 pb-14 pt-10 md:px-7 md:pb-20 md:pt-16">
-          <p className="text-small font-semibold uppercase tracking-[0.08em]">{eyebrow}</p>
-          <h1 className="display mt-4 max-w-[16ch] text-head">{title}</h1>
-          {line && <p className="mt-6 max-w-[52ch] text-lead leading-snug">{line}</p>}
+          <h1 className="display max-w-[20ch] text-head md:text-section">
+            <span className="line-mask">
+              <span>{title}</span>
+            </span>
+          </h1>
+          {line && <p className="fade-after-lines mt-6 max-w-[52ch] text-lead leading-snug">{line}</p>}
         </div>
       </header>
-      <main className="px-4 py-14 md:px-7 md:py-20">{children}</main>
+      <main className="px-4 py-14 md:px-7 md:py-20">
+        <Reveal className="reveal">{children}</Reveal>
+      </main>
       <Footer />
     </div>
   );

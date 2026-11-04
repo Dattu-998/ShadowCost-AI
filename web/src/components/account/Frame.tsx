@@ -30,7 +30,7 @@ export function Frame({
       </header>
       <main className="flex flex-1 items-start justify-center pb-16 pt-[6vh]">
         <div className={`w-full ${wide ? "max-w-[640px]" : "max-w-[440px]"}`}>
-          <section className="rounded-2xl border border-edge bg-sheet p-6 md:p-8">
+          <section className="screen-in rounded-2xl border border-edge bg-sheet p-6 md:p-8">
             <h1 className="text-[24px] font-semibold tracking-tight">{title}</h1>
             {line && <p className="mt-1.5 text-[15px] text-muted">{line}</p>}
             <div className="mt-6">{children}</div>

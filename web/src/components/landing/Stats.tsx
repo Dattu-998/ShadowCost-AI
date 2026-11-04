@@ -1,4 +1,5 @@
 import data from "@/data/landing.json";
+import { CountUp } from "@/lib/countup";
 import { Reveal } from "@/lib/reveal";
 
 /**
@@ -27,9 +28,9 @@ export function Stats() {
     <section aria-labelledby="stats-title" className="relative flex flex-col bg-blush pt-24 md:pt-28">
       <div className="px-4 md:px-7">
         <Reveal as="p" className="reveal display text-[26vw] md:text-[clamp(88px,10vw,168px)]">
-          {data.hours_saved.measured} h
+          <CountUp value={data.hours_saved.measured} digits={1} /> h
         </Reveal>
-        <Reveal as="h2" id="stats-title" delay={80} className="reveal mt-3 text-lead font-semibold">
+        <Reveal as="h2" id="stats-title" delay={120} className="reveal mt-3 text-lead font-semibold">
           Saved in a year, measured
         </Reveal>
         <Reveal as="p" delay={140} className="reveal mt-3 max-w-[52ch] text-body leading-relaxed">

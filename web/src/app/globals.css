@@ -79,6 +79,13 @@ body {
 
 /* --- motion --------------------------------------------------------------------------------- */
 
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
 /* Signature move: each headline line rises from behind its own baseline. Pure CSS, so the
    headline is never left hidden when scripts fail. */
 .line-mask {
@@ -88,13 +95,13 @@ body {
 }
 .line-mask > span {
   display: block;
-  animation: line-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: line-rise 900ms var(--ease-expo) both;
 }
 .line-mask:nth-child(2) > span {
   animation-delay: 110ms;
 }
 .fade-after-lines {
-  animation: fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) 650ms both;
+  animation: fade-up 700ms var(--ease-expo) 650ms both;
 }
 @keyframes line-rise {
   from {
@@ -108,28 +115,166 @@ body {
   }
 }
 
+/* Hero, scroll-linked: as the first screen leaves, the paper lifts off the waterline and the
+   name rises after it, so the slate below floods up into the next chapter. --p is 0 to 1. */
+.hero-paper {
+  transform-origin: top;
+  transform: scaleY(calc(1 - var(--p, 0) * 0.85));
+}
+.hero-rise {
+  transform: translateY(calc(var(--p, 0) * -38svh));
+  opacity: calc(1 - var(--p, 0) * 1.4);
+}
+
+/* Under the waterline: the cases the agents work through, moving out of sight. */
+.flow {
+  display: flex;
+  width: max-content;
+  animation: flow var(--flow-time, 60s) linear infinite;
+}
+.flow[data-reverse] {
+  animation-direction: reverse;
+}
+.flow-band:hover .flow {
+  animation-play-state: paused;
+}
+@keyframes flow {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 /* Section entrances: only hidden once the page knows scripts run (html.js), so content never
-   stays invisible without JavaScript. */
+   stays invisible without JavaScript. Three manners, chosen by content. */
 .js .reveal:not(.is-in) {
   opacity: 0;
   transform: translateY(24px);
 }
 .reveal {
   transition:
-    opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 700ms var(--ease-expo),
+    transform 700ms var(--ease-expo);
   transition-delay: var(--delay, 0ms);
 }
+/* A heading rises out of its own mask. */
+.js .reveal-mask:not(.is-in) > * {
+  transform: translateY(110%);
+}
+.reveal-mask {
+  overflow: clip;
+  padding-bottom: 0.06em;
+}
+.reveal-mask > * {
+  display: block;
+  transition: transform 1000ms var(--ease-expo);
+  transition-delay: var(--delay, 0ms);
+}
+/* A picture fades in and settles from a slight scale inside its frame. */
+.js .reveal-open:not(.is-in) {
+  opacity: 0;
+}
+.js .reveal-open:not(.is-in) img {
+  transform: scale(1.14);
+}
+.reveal-open {
+  transition: opacity 900ms var(--ease-out);
+  transition-delay: var(--delay, 0ms);
+}
+.reveal-open img {
+  transition: transform 1400ms var(--ease-expo);
+}
 
-/* Bars grow from the edge they stand on. */
+/* Bars grow from the edge they stand on; segments grow from their left edge. */
 .js .grow:not(.is-in) .bar {
   transform: scaleY(0);
 }
 .bar {
   transform-box: fill-box;
   transform-origin: bottom;
-  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 900ms var(--ease-expo);
   transition-delay: var(--delay, 0ms);
+}
+.js .grow:not(.is-in) .seg {
+  transform: scaleX(0);
+}
+.js .grow:not(.is-in) .seg > * {
+  opacity: 0;
+}
+.seg {
+  transform-origin: left;
+  transition: transform 1000ms var(--ease-in-out);
+  transition-delay: var(--delay, 0ms);
+}
+.seg > * {
+  transition: opacity 500ms ease;
+  transition-delay: calc(var(--delay, 0ms) + 700ms);
+}
+
+/* The climb is held for three screens while its stage stays put (sticky). */
+.climb-stage {
+  position: sticky;
+  top: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .js .climb {
+    height: 400svh;
+  }
+}
+
+/* The climb: the stage word rises each time it changes; the colour cuts with the chapter. */
+.climb-field {
+  transition:
+    background-color 450ms ease,
+    color 450ms ease;
+}
+.climb-word {
+  animation: line-rise 800ms var(--ease-expo) both;
+}
+.climb-cell {
+  transition:
+    background-color 260ms ease,
+    transform 260ms var(--ease-out);
+}
+.climb-cell[data-on] {
+  transform: scale(1);
+}
+.climb-cell:not([data-on]) {
+  transform: scale(0.82);
+}
+
+/* A record re-made from new input arrives row by row. */
+.arrive > * {
+  animation: fade-up 520ms var(--ease-out) both;
+}
+.arrive > *:nth-child(2) {
+  animation-delay: 60ms;
+}
+.arrive > *:nth-child(3) {
+  animation-delay: 120ms;
+}
+.arrive > *:nth-child(4) {
+  animation-delay: 180ms;
+}
+
+/* App: each screen settles in when it is opened. Quiet: 8px, under 400ms. */
+.screen-in {
+  animation: screen-in 380ms var(--ease-out) both;
+}
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.ladder-fill {
+  transform-origin: left;
+  animation: ladder-fill 700ms var(--ease-expo) both;
+  animation-delay: var(--delay, 0ms);
+}
+@keyframes ladder-fill {
+  from {
+    transform: scaleX(0);
+  }
 }
 
 /* The closing dialog is a real overlay of the product, so it casts its shadow. */
@@ -144,12 +289,40 @@ body {
     color 160ms ease-out;
 }
 .press:active {
-  transform: translateY(1px) scale(0.99);
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Links that answer the pointer: the underline draws in from the left. */
+.draw-link {
+  position: relative;
+}
+.draw-link::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -3px 0;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 320ms var(--ease-out);
+}
+.draw-link:hover::after,
+.draw-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* An arrow that leans toward where it goes. */
+.nudge {
+  transition: transform 320ms var(--ease-out);
+}
+.group:hover .nudge,
+.group:focus-visible .nudge {
+  transform: translateX(6px);
 }
 
 /* One moving picture: the ledger page drifts slowly, like a page being read. */
 .drift {
-  animation: drift 24s ease-in-out infinite alternate;
+  animation: drift 24s var(--ease-soft) infinite alternate;
 }
 @keyframes drift {
   from {
@@ -161,26 +334,44 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .drift {
+  .drift,
+  .flow,
+  .line-mask > span,
+  .fade-after-lines,
+  .climb-word,
+  .arrive > *,
+  .screen-in,
+  .ladder-fill {
     animation: none;
   }
-  .line-mask > span,
-  .fade-after-lines {
-    animation: none;
+  .hero-paper,
+  .hero-rise {
+    transform: none;
+    opacity: 1;
   }
   .js .reveal:not(.is-in),
-  .js .grow:not(.is-in) .bar {
+  .js .grow:not(.is-in) .bar,
+  .js .grow:not(.is-in) .seg,
+  .js .grow:not(.is-in) .seg > *,
+  .js .reveal-mask:not(.is-in) > *,
+  .js .reveal-open:not(.is-in),
+  .js .reveal-open:not(.is-in) img {
     opacity: 1;
     transform: none;
+    clip-path: none;
   }
   .reveal,
+  .reveal-mask > *,
+  .reveal-open,
+  .reveal-open img,
   .bar,
-  /* The closing dialog is a real overlay of the product, so it casts its shadow. */
-.floating-dialog {
-  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.35); /* taste-skill-ignore: a floating dialog */
-}
-
-.press {
+  .seg,
+  .seg > *,
+  .climb-field,
+  .climb-cell,
+  .press,
+  .draw-link::after,
+  .nudge {
     transition: none;
   }
 }

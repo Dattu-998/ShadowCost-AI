@@ -38,7 +38,7 @@ export function DemoForm() {
 
   if (sent) {
     return (
-      <div role="status" className="bg-[#eceae3] p-6 md:p-8">
+      <div role="status" className="bg-sage p-6 md:p-8">
         <p className="text-lead font-semibold">Thanks. We&apos;ll be in touch.</p>
         <p className="mt-2 text-body">A reply goes to {sent} within one working day.</p>
       </div>
@@ -47,22 +47,22 @@ export function DemoForm() {
 
   const input = "mt-1.5 h-11 w-full rounded-md border border-control bg-sheet px-3 text-body outline-none focus:border-ink";
   return (
-    <form onSubmit={submit} className="space-y-5 bg-[#eceae3] p-6 md:p-8">
+    <form onSubmit={submit} className="space-y-5 bg-sage p-6 md:p-8">
       <label className="block">
-        <span className="text-small font-semibold">Your name</span>
+        <span className="text-body font-semibold">Your name</span>
         <input name="name" required maxLength={120} autoComplete="name" className={input} />
       </label>
       <label className="block">
-        <span className="text-small font-semibold">Work email</span>
+        <span className="text-body font-semibold">Work email</span>
         <input name="email" type="email" required maxLength={254} autoComplete="email" className={input} />
       </label>
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
-          <span className="text-small font-semibold">Company</span>
+          <span className="text-body font-semibold">Company</span>
           <input name="company" maxLength={120} autoComplete="organization" className={input} />
         </label>
         <label className="block">
-          <span className="text-small font-semibold">Team size</span>
+          <span className="text-body font-semibold">Team size</span>
           <select name="team_size" defaultValue="" className={input}>
             <option value="">Choose</option>
             {SIZES.map((s) => (
@@ -72,7 +72,7 @@ export function DemoForm() {
         </label>
       </div>
       <label className="block">
-        <span className="text-small font-semibold">What takes the most time?</span>
+        <span className="text-body font-semibold">What takes the most time?</span>
         <textarea
           name="message"
           rows={4}

@@ -39,9 +39,9 @@ export function Stages() {
       <Reveal
         as="h2"
         id="stages-title"
-        className="reveal display max-w-[14ch] text-[11vw] md:col-span-7 md:text-section"
+        className="reveal-mask display max-w-[14ch] text-[11vw] md:col-span-7 md:text-section"
       >
-        Trust, earned in four steps
+        <span>The climb, in days</span>
       </Reveal>
       <Reveal as="p" delay={80} className="reveal max-w-[44ch] text-body leading-relaxed md:col-span-5 md:col-start-8">
         The invoice agent&apos;s real path through a simulated year at {data.company}. A stage is
@@ -53,15 +53,15 @@ export function Stages() {
       <Reveal
         data-ui
         delay={160}
-        className="reveal mt-16 flex flex-col gap-1.5 md:h-[22vh] md:min-h-[150px] md:flex-row"
+        className="grow mt-16 flex flex-col gap-1.5 md:h-[22vh] md:min-h-[150px] md:flex-row"
         role="img"
         aria-label={agent.spans.map((s) => `${s.stage} for ${s.days} days`).join(", ")}
       >
-        {agent.spans.map((span) => (
+        {agent.spans.map((span, i) => (
           <div
             key={span.stage}
-            className={`flex min-h-[72px] flex-col justify-between p-5 ${STAGES[span.stage as keyof typeof STAGES].color}`}
-            style={{ flexGrow: Math.max(span.days, 25), flexBasis: 0 }}
+            className={`seg flex min-h-[72px] flex-col justify-between p-5 ${STAGES[span.stage as keyof typeof STAGES].color}`}
+            style={{ flexGrow: Math.max(span.days, 25), flexBasis: 0, ["--delay" as string]: `${i * 260}ms` }}
           >
             <span className="text-lead font-semibold leading-none">
               {span.days} days

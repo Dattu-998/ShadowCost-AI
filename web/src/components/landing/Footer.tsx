@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Reveal } from "@/lib/reveal";
 
 /** A footer of tiles (dealt): the last two rows of the board, every cell used. */
 const REPO = process.env.NEXT_PUBLIC_REPO_URL || "https://github.com/Dattu-998/ShadowCost-AI";
@@ -11,7 +12,9 @@ export function Footer() {
         href="/"
         className="col-span-2 flex h-40 items-center justify-center bg-ink text-paper md:order-5 md:col-span-8 md:h-80"
       >
-        <span className="display text-[14vw] md:text-[9vw]">ShadowCost</span>
+        <Reveal as="span" className="reveal-mask display text-[14vw] md:text-[9vw]">
+          <span>ShadowCost</span>
+        </Reveal>
       </Link>
       <Link
         href="/demo"
@@ -21,7 +24,7 @@ export function Footer() {
         <svg
           aria-hidden
           viewBox="0 0 48 48"
-          className="ml-auto h-12 w-12 transition-transform group-hover:translate-x-1"
+          className="nudge ml-auto h-12 w-12"
           fill="none"
           stroke="currentColor"
           strokeWidth="4"

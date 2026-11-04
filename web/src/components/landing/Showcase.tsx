@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import data from "@/data/landing.json";
+import { Reveal } from "@/lib/reveal";
 import { linkPayment, money, parseBankLine, type Invoice } from "@/lib/linker";
 
 /**
@@ -54,12 +55,13 @@ export function Showcase() {
             </button>
           ))}
         </div>
-        <p
+        <Reveal
+          as="p"
           aria-hidden
-          className="display absolute bottom-8 left-5 text-[11vw] md:left-[8.33vw] md:text-section"
+          className="reveal-mask display absolute bottom-8 left-5 text-[11vw] md:left-[8.33vw] md:text-section"
         >
-          Bank line in,
-        </p>
+          <span>Bank line in,</span>
+        </Reveal>
       </div>
 
       {/* Output: the record ShadowCost makes of it. */}
@@ -77,6 +79,7 @@ export function Showcase() {
           </div>
           <p className="mt-1 truncate text-lead font-semibold">{line.payer || "Unknown payer"}</p>
 
+          <div key={link.kind === "none" ? `none:${line.payer}` : link.invoice.id} className="arrive">
           {link.kind === "none" ? (
             <div className="mt-5 rounded-md bg-wait-tint px-4 py-3 text-wait">
               <p className="font-semibold">Not linked</p>
@@ -104,13 +107,16 @@ export function Showcase() {
               </p>
             </>
           )}
+          </div>
         </div>
-        <p
+        <Reveal
+          as="p"
           aria-hidden
-          className="display absolute bottom-8 right-5 text-[11vw] md:right-10 md:text-section"
+          delay={140}
+          className="reveal-mask display absolute bottom-8 right-5 text-[11vw] md:right-10 md:text-section"
         >
-          invoice out.
-        </p>
+          <span>invoice out.</span>
+        </Reveal>
       </div>
     </section>
   );

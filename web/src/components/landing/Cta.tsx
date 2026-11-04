@@ -39,9 +39,9 @@ export function Cta() {
         <Reveal
           as="h2"
           id="cta-title"
-          className="reveal display text-[13vw] [line-height:0.92] md:text-section"
+          className="reveal-mask display text-[13vw] [line-height:0.92] md:text-section"
         >
-          Watch one earn trust
+          <span>Watch one earn trust</span>
         </Reveal>
         <Reveal as="p" delay={80} className="reveal mt-6 max-w-[40ch] text-body leading-snug">
           The demo opens on {`Fernhill Supplies'`} files. Approve an agent there and it starts by
